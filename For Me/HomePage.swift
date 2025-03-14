@@ -1,0 +1,587 @@
+import SwiftUI
+import UserNotifications
+
+struct CustomCalendarView: View {
+    @Environment(\.colorScheme) var colorScheme
+    @State private var selectedDate = Date()
+    @State private var currentMonth = Date()
+    @GestureState private var dragOffset: CGFloat = 0
+    @State private var showDatePicker = false
+    @State private var showTimerPage = false  // TimerPage 표시 여부
+    @State private var currentYear: Int
+    let endYear: Int
+    @State private var showRecordPage = false  // RecordPage 표시 여부
+    @State private var lastSelectedDate: Date? = nil // 마지막으로 선택된 날짜
+    
+    private let calendar = Calendar.current
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        return formatter
+    }()
+    
+    private let days = ["일", "월", "화", "수", "목", "금", "토"]
+    private let columns = Array(repeating: GridItem(.flexible()), count: 7)
+    
+    init() {
+        let currentDate = Date()
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: currentDate)
+        let month = calendar.component(.month, from: currentDate)
+        
+        _currentYear = State(initialValue: year)
+        _currentMonth = State(initialValue: calendar.date(from: DateComponents(year: year, month: month)) ?? currentDate)
+        
+        endYear = min(year + 5, 2099)
+    }
+    
+    var body: some View {
+        ZStack {
+            VStack {
+                HStack {
+                    Button(action: {
+                        withAnimation {
+                            showDatePicker.toggle()
+                        }
+                    }) {
+                        HStack {
+                            Text(monthYearString())
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(colorScheme == .dark ? .black : .black)
+                            Image(systemName: showDatePicker ? "chevron.up" : "chevron.down")
+                                .foregroundColor(colorScheme == .dark ? .black : .black)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    // 타이머 버튼 (비활성화)
+                    // TODO: TimerPage 구현 예정
+                    Button(action: {
+                        // showTimerPage = true  // TimerPage 구현 시 주석 해제
+                    }) {
+                        Image(systemName: "timer")
+                            .font(.title2)
+                            .foregroundColor(.black)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top, 15)
+                
+                // 배너 광고 공간 (임시)
+                Color.clear
+                    .frame(height: 50)
+                    .padding(.vertical, 5)
+                
+                Spacer()
+                
+                // 달력 컨텐츠를 VStack으로 묶어서 관리
+                VStack(spacing: 0) {  // spacing을 0으로 설정
+                    // 요일 헤더
+                    HStack {
+                        ForEach(days, id: \.self) { day in
+                            Text(day)
+                                .font(Font.custom("Hakgyoansim Badasseugi TTF L", size: 25, relativeTo: .body))
+                                .fontWeight(.regular)
+                                .frame(maxWidth: .infinity)
+                                .foregroundColor(
+                                    day == "일" ? .red :
+                                    (day == "토" ? .blue : .black)
+                                )
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                    // 달력 그리드
+                    GeometryReader { geo in
+                        let cellWidth = (geo.size.width - 40) / 7
+                        let availableHeight = geo.size.height
+                        let spacing = availableHeight * 0.05  // spacing 감소
+                        
+                        LazyVGrid(columns: columns, spacing: spacing) {
+                            ForEach(daysInMonth(), id: \.self) { date in
+                                if let date = date {
+                                    DayCell(date: date, selectedDate: $selectedDate, currentMonth: currentMonth)
+                                        .frame(height: cellWidth)
+                                        .onTapGesture {
+                                            if lastSelectedDate == date {
+                                                // showRecordPage = true  // RecordPage 구현 시 주석 해제
+                                            } else {
+                                                lastSelectedDate = date
+                                            }
+                                        }
+                                } else {
+                                    Text("")
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: cellWidth)
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.top)
+                        .frame(maxHeight: .infinity, alignment: .top)
+                    }
+                    
+                }
+                
+                Spacer(minLength: 0)  // 하단 여백 최소화
+            }
+            
+            if showDatePicker {
+                VStack {
+                    Color.black.opacity(0.001) // 투명한 배경 추가
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation {
+                                showDatePicker = false
+                                applySelectedDate()
+                            }
+                        }
+                    
+                    VStack {
+                        Picker("년도", selection: $currentYear) {
+                            ForEach(2025...endYear, id: \.self) { year in
+                                Text("\(year)년")
+                                    .tag(year)
+                                    .foregroundColor(.black)
+                            }
+                        }
+                        .pickerStyle(WheelPickerStyle())
+                        .frame(maxWidth: .infinity)
+                        
+                        Picker("월", selection: Binding(
+                            get: { Calendar.current.component(.month, from: currentMonth) },
+                            set: { newMonth in
+                                let components = Calendar.current.dateComponents([.year], from: currentMonth)
+                                let newComponents = DateComponents(year: components.year, month: newMonth)
+                                if let newDate = Calendar.current.date(from: newComponents) {
+                                    currentMonth = newDate
+                                }
+                            }
+                        )) {
+                            ForEach(1...12, id: \.self) { month in
+                                Text("\(month)월")
+                                    .tag(month)
+                                    .foregroundColor(.black)
+                            }
+                        }
+                        .pickerStyle(WheelPickerStyle())
+                        .frame(maxWidth: .infinity)
+                    }
+                    .background(Color.white)
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+                    .padding(.top, 5)
+                    .offset(y: -UIScreen.main.bounds.height / 2 + 150)
+                }
+                .background(Color.black.opacity(0.001)) // 전체 화면을 덮는 배경 추가
+                .onTapGesture {
+                    withAnimation {
+                        showDatePicker = false
+                        applySelectedDate()
+                    }
+                }
+            }
+        }
+        .gesture(
+            DragGesture()
+                .updating($dragOffset) { value, state, _ in
+                    state = value.translation.width
+                }
+                .onEnded { value in
+                    let threshold: CGFloat = 50
+                    if value.translation.width > threshold {
+                        withAnimation {
+                            previousMonth()
+                        }
+                    } else if value.translation.width < -threshold {
+                        withAnimation {
+                            nextMonth()
+                        }
+                    }
+                }
+        )
+        .animation(.easeInOut, value: currentMonth)
+        // TimerPage 시트 제거
+        // .sheet(isPresented: $showTimerPage) {
+        //     TimerPage()
+        // }
+        
+        // RecordPage 시트 제거
+        // .sheet(isPresented: $showRecordPage) {
+        //     RecordPage(selectedDate: selectedDate)
+        // }
+    }
+    
+    private func monthYearString() -> String {
+        dateFormatter.dateFormat = "yyyy년 M월"
+        return dateFormatter.string(from: currentMonth)
+    }
+    
+    private func previousMonth() {
+        currentMonth = calendar.date(byAdding: .month, value: -1, to: currentMonth) ?? currentMonth
+    }
+    
+    private func nextMonth() {
+        currentMonth = calendar.date(byAdding: .month, value: 1, to: currentMonth) ?? currentMonth
+    }
+    
+    private func daysInMonth() -> [Date?] {
+        let interval = calendar.dateInterval(of: .month, for: currentMonth)!
+        let firstWeekday = calendar.component(.weekday, from: interval.start)
+        
+        let daysInMonth = calendar.dateComponents([.day], from: interval.start, to: interval.end).day!
+        
+        var dates: [Date?] = Array(repeating: nil, count: firstWeekday - 1)
+        
+        for day in 1...daysInMonth {
+            if let date = calendar.date(byAdding: .day, value: day - 1, to: interval.start) {
+                dates.append(date)
+            }
+        }
+        
+        while dates.count % 7 != 0 {
+            dates.append(nil)
+        }
+        
+        return dates
+    }
+    
+    private func applySelectedDate() {
+        // 선택한 년도와 월을 적용하는 로직
+        let components = Calendar.current.dateComponents([.year, .month], from: currentMonth)
+        let newComponents = DateComponents(year: currentYear, month: components.month)
+        if let newDate = Calendar.current.date(from: newComponents) {
+            currentMonth = newDate
+        }
+    }
+}
+
+struct DayCell: View {
+    let date: Date
+    @Binding var selectedDate: Date
+    let currentMonth: Date
+    @State private var showRecordPage = false
+    
+    private let calendar = Calendar.current
+    
+    var body: some View {
+        let isSelected = calendar.isDate(date, inSameDayAs: selectedDate)
+        let isToday = calendar.isDateInToday(date)
+        
+        Button(action: {
+            if calendar.isDate(date, inSameDayAs: selectedDate) {
+                showRecordPage = true
+            }
+            selectedDate = date
+        }) {
+            VStack(spacing: 0) {
+                Text("\(calendar.component(.day, from: date))")
+                    .font(Font.custom("Hakgyoansim Badasseugi TTF L", size: 20, relativeTo: .body))
+                    .fontWeight(isToday ? .bold : .regular)
+                    .frame(maxWidth: .infinity, alignment: .top)
+                Spacer()
+                // ScoreManager 임시 처리
+                // TODO: ScoreManager 구현 예정
+                Text(" ")
+                    .frame(height: 20)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.vertical, 10) // 높이 조정
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(isSelected ? Color(hex: "6E3CBC").opacity(0.2) : Color.clear)
+            )
+            .overlay(
+                isToday ?
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color(hex: "6E3CBC"), lineWidth: 1)
+                : nil
+            )
+        }
+        .foregroundColor(
+            calendar.isDate(date, equalTo: currentMonth, toGranularity: .month)
+                ? (calendar.component(.weekday, from: date) == 1
+                    ? .red
+                    : (calendar.component(.weekday, from: date) == 7
+                        ? .blue
+                        : .black))
+                : .gray
+        )
+        .sheet(isPresented: $showRecordPage) {
+            RecordPage(selectedDate: date)
+        }
+        .onAppear {
+            // ScoreManager 체크 임시 제거
+            // checkScore()
+        }
+        // ScoreManager Notification 제거
+        // .onReceive(NotificationCenter.default.publisher(for: ScoreManager.scoreChangedNotification)) { ... }
+    }
+    
+    private func checkScore() {
+        // TODO: ScoreManager 구현 예정
+        // let score = ScoreManager.shared.loadScore(for: date)
+        // hasScore = score > 0
+    }
+}
+
+struct HomePage: View {
+    @State private var selectedTab = 0
+    @Environment(\.colorScheme) var colorScheme
+    
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            GeometryReader { geometry in
+                VStack(spacing: 0) {
+                    CustomCalendarView()
+                        .frame(height: geometry.size.height)
+                        .padding(.horizontal, 0)
+                        .padding(.top, 1)
+                }
+                .frame(maxHeight: .infinity, alignment: .top)
+            }
+            .background(
+                Color.backgroundColor
+                    .ignoresSafeArea()
+            )
+            .tabItem {
+                Image(systemName: "house.fill")
+                Text("홈")
+            }
+            .tag(0)
+            
+            SettingsView()
+                .tabItem {
+                    Image(systemName: "gearshape.fill")
+                    Text("설정")
+                }
+                .tag(1)
+        }
+        .onAppear {
+            UITabBar.setupAppearance()
+        }
+        .tint(Color.accentColor)
+        .toolbarBackground(Color.backgroundColor, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
+    }
+}
+
+struct SettingsView: View {
+    @Environment(\.colorScheme) var colorScheme
+    @State private var notificationsEnabled = false
+    @State private var showNotificationAlert = false
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Color(hex: "E8E6DD")
+                    .ignoresSafeArea()
+                
+                VStack(spacing: 16) {
+                    // 설정 옵션들
+                    VStack(spacing: 0) {
+                        // 알림 설정
+                        HStack {
+                            Image(systemName: "bell.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 25)
+                            Text("알림 설정")
+                                .foregroundColor(.black)
+                            Spacer()
+                            Toggle("", isOn: $notificationsEnabled)
+                                .tint(Color(hex: "6E3CBC"))
+                                .onChange(of: notificationsEnabled) { newValue in
+                                    if newValue {
+                                        requestNotificationPermission()
+                                    } else {
+                                        UserDefaults.standard.set(false, forKey: "notificationsEnabled")
+                                    }
+                                }
+                        }
+                        .padding()
+                        
+                        Divider()
+                        
+                        // 앱 정보
+                        NavigationLink(destination: AppInfoView()) {
+                            HStack {
+                                Image(systemName: "info.circle.fill")
+                                    .foregroundColor(.purple)
+                                    .frame(width: 25)
+                                Text("앱 정보")
+                                    .foregroundColor(.black)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.gray)
+                            }
+                            .padding()
+                        }
+                        
+                        Divider()
+                        
+                        // 개인정보 처리방침
+                        NavigationLink(destination: PrivacyPolicyView()) {
+                            HStack {
+                                Image(systemName: "lock.shield.fill")
+                                    .foregroundColor(.green)
+                                    .frame(width: 25)
+                                Text("개인정보 처리방침")
+                                    .foregroundColor(.black)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.gray)
+                            }
+                            .padding()
+                        }
+                    }
+                    .background(
+                        RoundedRectangle(cornerRadius: 15)
+                            .fill(.white)
+                    )
+                    .padding(.horizontal)
+                    .padding(.top) // 상단 여백 추가
+                    
+                    Spacer()
+                }
+            }
+            .navigationBarHidden(true)
+            .alert("알림 설정", isPresented: $showNotificationAlert) {
+                Button("설정") {
+                    openAppSettings()
+                }
+                Button("취소", role: .cancel) {
+                    notificationsEnabled = false
+                }
+            } message: {
+                Text("알림을 활성화하려면 설정에서 알림을 허용해주세요.")
+            }
+        }
+        .environment(\.colorScheme, .light)
+    }
+    
+    private func checkNotificationStatus() {
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            DispatchQueue.main.async {
+                notificationsEnabled = settings.authorizationStatus == .authorized
+            }
+        }
+    }
+    
+    private func requestNotificationPermission() {
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            DispatchQueue.main.async {
+                switch settings.authorizationStatus {
+                case .notDetermined:
+                    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+                        DispatchQueue.main.async {
+                            notificationsEnabled = granted
+                            UserDefaults.standard.set(granted, forKey: "notificationsEnabled")
+                            // TimerManager 관련 코드 제거
+                        }
+                    }
+                case .denied:
+                    notificationsEnabled = false
+                    showNotificationAlert = true
+                case .authorized:
+                    notificationsEnabled = true
+                    UserDefaults.standard.set(true, forKey: "notificationsEnabled")
+                    // TimerManager 관련 코드 제거
+                default:
+                    break
+                }
+            }
+        }
+    }
+    
+    private func openAppSettings() {
+        if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(settingsUrl)
+        }
+    }
+}
+
+// AppInfoView 수정
+struct AppInfoView: View {
+    var body: some View {
+        List {
+            Section(header: Text("앱 정보").foregroundColor(.black)) {
+                // 버전 정보
+                HStack {
+                    Image(systemName: "number")
+                        .foregroundColor(.purple)
+                    Text("버전")
+                    Spacer()
+                    Text("1.0.0")
+                        .foregroundColor(.gray)
+                }
+                
+                // 아이콘 제공 정보
+                HStack {
+                    Image(systemName: "photo")
+                        .foregroundColor(.blue)
+                    Link("Icons by Icons8", destination: URL(string: "https://icons8.kr/")!)
+                        .foregroundColor(.black)
+                }
+                
+                // 광고 문의 링크
+                HStack {
+                    Image(systemName: "envelope.fill")
+                        .foregroundColor(.green)
+                    Link("광고 문의", destination: URL(string: "mailto:yang486741@gmail.com")!)
+                        .foregroundColor(.black)
+                }
+            }
+        }
+        .navigationTitle("앱 정보")
+        .background(Color(hex: "E8E6DD"))
+        .scrollContentBackground(.hidden)
+        .environment(\.colorScheme, .light)
+    }
+}
+
+// 개인정보 처리방침 뷰
+struct PrivacyPolicyView: View {
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                Group {
+                    Text("개인정보 처리방침")
+                        .font(.title)
+                        .fontWeight(.bold)
+                    
+                    Text("1. 개인정보의 처리 목적")
+                        .font(.headline)
+                    Text("ForMe는 다음의 목적을 위하여 개인정보를 처리합니다:\n• 앱 서비스 제공 및 계정 관리\n• 타이머 기능 및 알림 서비스 제공\n• 사용자 경험 개선 및 서비스 품질 향상")
+                    
+                    Text("2. 개인정보의 보유 및 이용기간")
+                        .font(.headline)
+                    Text("사용자의 개인정보는 서비스 이용 종료 또는 앱 삭제 시까지 보관됩니다.")
+                }
+                
+                Group {
+                    Text("3. 개인정보의 파기")
+                        .font(.headline)
+                    Text("앱 삭제 시 즉시 모든 개인정보를 파기하며, 이는 복구할 수 없습니다.")
+                    
+                    Text("4. 개인정보의 제3자 제공")
+                        .font(.headline)
+                    Text("ForMe는 사용자의 개인정보를 제3자에게 제공하지 않습니다.")
+                    
+                    Text("5. 개인정보 보호 책임자")
+                        .font(.headline)
+                    Text("개인정보 보호 책임자\n이메일: yang486741@gmail.com")
+                }
+            }
+            .padding()
+        }
+        .background(Color(hex: "E8E6DD").ignoresSafeArea())
+        .navigationTitle("개인정보 처리방침")
+        .environment(\.colorScheme, .light)
+    }
+}
+
+#Preview {
+    HomePage()
+}

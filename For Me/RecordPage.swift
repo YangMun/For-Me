@@ -10,6 +10,7 @@ struct RecordPage: View {
     @State private var editedText: String = ""  // 수정 중인 텍스트
     @State private var showDeleteAlert = false  // 삭제 확인 알림
     @State private var taskToDelete: String?    // 삭제할 task
+    @State private var showSpeechAIPage = false
     
     private let calendar = Calendar.current
     
@@ -135,7 +136,7 @@ struct RecordPage: View {
                     AIChatButton(
                         action: {
                             cancelEditing()  // 수정 모드 해제
-                            // 추후 기능 구현
+                            showSpeechAIPage = true  // SpeechAIPage 표시를 위한 상태 변수 활성화
                         },
                         isEnabled: isToday,
                         isAdReady: true
@@ -159,6 +160,9 @@ struct RecordPage: View {
                     },
                     existingTasks: tasks  // 기존 할 일 목록 전달
                 )
+            }
+            .sheet(isPresented: $showSpeechAIPage) {
+                SpeechAIPage(selectedDate: selectedDate)
             }
             // 삭제 확인 알림
             .alert("할 일 삭제", isPresented: $showDeleteAlert) {

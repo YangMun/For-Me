@@ -110,8 +110,8 @@ iOSInjectionProject/
 
 
 # Sensitive Information
-Info.plist
-**/Info.plist
+For-Me-Info.plist
+**/For-Me-Info.plist
 Config.plist
 **/Config.plist
 Secrets.plist

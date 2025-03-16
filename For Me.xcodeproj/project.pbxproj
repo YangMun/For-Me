@@ -17,8 +17,7 @@
 		81986CB72D83F73A00A87F1A /* CircleScore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81986CB62D83F73400A87F1A /* CircleScore.swift */; };
 		81986CB92D83F84D00A87F1A /* AIChatButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81986CB82D83F84D00A87F1A /* AIChatButton.swift */; };
 		81986CBB2D83FA6300A87F1A /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81986CBA2D83FA6100A87F1A /* AddTaskView.swift */; };
-		81986CC12D84097B00A87F1A /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 81986CC02D84097B00A87F1A /* Info.plist */; };
-		81986CC52D840A0D00A87F1A /* Info-Sample.plist in Resources */ = {isa = PBXBuildFile; fileRef = 81986CC42D840A0D00A87F1A /* Info-Sample.plist */; };
+		81986CC82D86884300A87F1A /* SpeechAIPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81986CC72D86884100A87F1A /* SpeechAIPage.swift */; };
 		81C1582F2D6ACA2D00B9F553 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81C1582B2D6ACA2D00B9F553 /* ContentView.swift */; };
 		81C158302D6ACA2D00B9F553 /* For_MeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81C1582D2D6ACA2D00B9F553 /* For_MeApp.swift */; };
 		81C158312D6ACA2D00B9F553 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 81C158282D6ACA2D00B9F553 /* Preview Assets.xcassets */; };
@@ -39,8 +38,8 @@
 		81986CB82D83F84D00A87F1A /* AIChatButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatButton.swift; sourceTree = "<group>"; };
 		81986CBA2D83FA6100A87F1A /* AddTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTaskView.swift; sourceTree = "<group>"; };
 		81986CBD2D84064E00A87F1A /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		81986CC02D84097B00A87F1A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		81986CC42D840A0D00A87F1A /* Info-Sample.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-Sample.plist"; sourceTree = "<group>"; };
+		81986CC62D8683B400A87F1A /* For-Me-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "For-Me-Info.plist"; sourceTree = SOURCE_ROOT; };
+		81986CC72D86884100A87F1A /* SpeechAIPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechAIPage.swift; sourceTree = "<group>"; };
 		81C158162D6ACA2300B9F553 /* For Me.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "For Me.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81C158282D6ACA2D00B9F553 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		81C1582A2D6ACA2D00B9F553 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -83,8 +82,6 @@
 		81C1580D2D6ACA2300B9F553 = {
 			isa = PBXGroup;
 			children = (
-				81986CC02D84097B00A87F1A /* Info.plist */,
-				81986CC42D840A0D00A87F1A /* Info-Sample.plist */,
 				81986C982D6ACCB400A87F1A /* Font */,
 				81C1582E2D6ACA2D00B9F553 /* For Me */,
 				81C158172D6ACA2300B9F553 /* Products */,
@@ -113,6 +110,8 @@
 		81C1582E2D6ACA2D00B9F553 /* For Me */ = {
 			isa = PBXGroup;
 			children = (
+				81986CC72D86884100A87F1A /* SpeechAIPage.swift */,
+				81986CC62D8683B400A87F1A /* For-Me-Info.plist */,
 				81C158292D6ACA2D00B9F553 /* Preview Content */,
 				81C1582A2D6ACA2D00B9F553 /* Assets.xcassets */,
 				81C1582B2D6ACA2D00B9F553 /* ContentView.swift */,
@@ -212,8 +211,6 @@
 				81986C992D6ACCB400A87F1A /* Hakgyoansim Badasseugi TTF B.ttf in Resources */,
 				81986C9A2D6ACCB400A87F1A /* Hakgyoansim Geurimilgi TTF R.ttf in Resources */,
 				81986C9B2D6ACCB400A87F1A /* Hakgyoansim Badasseugi TTF L.ttf in Resources */,
-				81986CC52D840A0D00A87F1A /* Info-Sample.plist in Resources */,
-				81986CC12D84097B00A87F1A /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -255,6 +252,7 @@
 				81986CBB2D83FA6300A87F1A /* AddTaskView.swift in Sources */,
 				81986CB92D83F84D00A87F1A /* AIChatButton.swift in Sources */,
 				81986CB52D83F27200A87F1A /* RecordPage.swift in Sources */,
+				81986CC82D86884300A87F1A /* SpeechAIPage.swift in Sources */,
 				81986C9F2D6B319C00A87F1A /* LoadingPage.swift in Sources */,
 				81986CB72D83F73A00A87F1A /* CircleScore.swift in Sources */,
 				81986C9D2D6B317100A87F1A /* Color.swift in Sources */,

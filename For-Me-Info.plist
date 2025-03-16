@@ -2,12 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleURLTypes</key>
-    <array/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict/>
+		<dict/>
+	</array>
     
-    <key>OPENAI_API_KEY</key>
-    <string>your_api_key_here</string>
-
     <key>UIAppFonts</key>
     <array>
         <string>Hakgyoansim Badasseugi TTF L.ttf</string>

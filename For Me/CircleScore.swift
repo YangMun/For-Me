@@ -24,6 +24,7 @@ struct CircleScore: View {
                                 .stroke(Color.gray.opacity(0.3), lineWidth: 1)
                         )
                         .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+                        .contentShape(Circle())  // 탭 영역을 명확히 정의
                         .onTapGesture {
                             if isEnabled {
                                 withAnimation(.easeInOut(duration: 0.2)) {
@@ -32,6 +33,7 @@ struct CircleScore: View {
                                 }
                             }
                         }
+                        .frame(width: 44, height: 44)  // 탭 영역 확장
                         .opacity(isEnabled ? 1.0 : 0.5)
                     if index < maxScore {
                         Spacer()

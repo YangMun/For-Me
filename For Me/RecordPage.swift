@@ -32,7 +32,9 @@ struct RecordPage: View {
                 // 배경색
                 Color.backgroundColor
                     .ignoresSafeArea()
-                    // 전체 화면에 탭 제스처 추가
+                    // 전체 화면에 탭 제스처 추가 - 버튼 영역 제외
+                    .contentShape(Rectangle())
+                    .allowsHitTesting(true)
                     .onTapGesture {
                         cancelEditing()
                     }
@@ -54,6 +56,8 @@ struct RecordPage: View {
                             Image(systemName: "plus")
                                 .font(.title2)
                                 .foregroundColor(Color.accentColor)
+                                .frame(width: 44, height: 44)  // 탭 영역 확장
+                                .contentShape(Rectangle())     // 전체 영역을 탭 가능하게 설정
                         }
                     }
                     .padding(.horizontal)
@@ -128,9 +132,6 @@ struct RecordPage: View {
                     )
                     .padding(.horizontal)
                     .allowsHitTesting(true)
-                    .onTapGesture {
-                        cancelEditing()
-                    }
                     
                     // AIChatButton 수정
                     AIChatButton(
@@ -148,8 +149,6 @@ struct RecordPage: View {
                     Spacer()
                 }
             }
-            // ScrollView의 탭 제스처 제거 (중복 방지)
-            .onTapGesture {}
             .navigationBarHidden(true)
             .sheet(isPresented: $showAddTaskSheet) {
                 AddTaskView(

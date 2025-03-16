@@ -33,6 +33,7 @@ struct SpeechAIPage: View {
         (text: "오늘 하루는 어땠나요?", isUser: false)
     ]
     @State private var conversationCount = 0  // 대화 횟수를 추적하기 위한 변수 추가
+    @State private var isWaitingForResponse = false // AI 응답 대기 상태 추가
     private let maxConversations = 3  // 최대 대화 횟수 설정
     
     private let calendar = Calendar.current
@@ -139,13 +140,14 @@ struct SpeechAIPage: View {
                                 .onSubmit {
                                     sendMessage()
                                 }
+                                .disabled(isWaitingForResponse) // 응답 대기 중에는 비활성화
                             
                             Button(action: sendMessage) {
                                 Image(systemName: "arrow.up.circle.fill")
                                     .font(.system(size: 32))
-                                    .foregroundColor(messageText.isEmpty ? .gray : Color(hex: "6E3CBC"))
+                                    .foregroundColor(messageText.isEmpty || isWaitingForResponse ? .gray : Color(hex: "6E3CBC"))
                             }
-                            .disabled(messageText.isEmpty)
+                            .disabled(messageText.isEmpty || isWaitingForResponse) // 응답 대기 중에는 비활성화
                         }
                         .padding(.horizontal)
                         .padding(.vertical, 12)
@@ -158,7 +160,7 @@ struct SpeechAIPage: View {
     }
     
     private func sendMessage() {
-        guard !messageText.isEmpty else { return }
+        guard !messageText.isEmpty && !isWaitingForResponse else { return }
         
         let userMessage = messageText
         messageText = "" // 입력창 초기화
@@ -166,10 +168,41 @@ struct SpeechAIPage: View {
         // 사용자 메시지 추가
         chatMessages.append((text: userMessage, isUser: true))
         
-        // TODO: AI 응답 처리 로직 추가
-        // 임시 응답
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            chatMessages.append((text: "AI 응답을 기다리고 있습니다...", isUser: false))
+        // 응답 대기 상태로 변경
+        isWaitingForResponse = true
+        
+        // 임시 대기 메시지 추가
+        let waitingMessageIndex = chatMessages.count
+        chatMessages.append((text: "AI 응답을 기다리고 있습니다...", isUser: false))
+        
+        // GPT API 호출
+        Task {
+            do {
+                let response = try await GPTFunction.shared.sendMessage(userMessage)
+                
+                // UI 업데이트는 메인 스레드에서 수행
+                DispatchQueue.main.async {
+                    // 대기 메시지 제거하고 실제 응답으로 교체
+                    if waitingMessageIndex < chatMessages.count {
+                        chatMessages[waitingMessageIndex] = (text: response, isUser: false)
+                    }
+                    
+                    // 응답 대기 상태 해제
+                    isWaitingForResponse = false
+                }
+            } catch {
+                // 오류 발생 시 처리
+                DispatchQueue.main.async {
+                    // 대기 메시지를 오류 메시지로 교체
+                    if waitingMessageIndex < chatMessages.count {
+                        chatMessages[waitingMessageIndex] = (text: "죄송합니다. 응답을 받아오는 중 오류가 발생했습니다.", isUser: false)
+                    }
+                    
+                    // 응답 대기 상태 해제
+                    isWaitingForResponse = false
+                }
+                print("GPT API 오류: \(error.localizedDescription)")
+            }
         }
     }
 }

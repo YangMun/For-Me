@@ -155,10 +155,22 @@ struct RecordPage: View {
                     // 대화 요약 표시
                     if let summary = chatSummary {
                         SummaryChat(summary: summary, date: selectedDate)
-                            .padding(.top, 5)  // 상단 패딩 추가
+                            .padding(.top, 5)
                     }
                     
                     Spacer()
+                    
+                    // 저장하기 버튼 추가 (오늘 날짜일 때만 표시)
+                    SaveButton(
+                        action: {
+                            // 여기에 나중에 저장 기능 구현
+                            print("저장 버튼이 눌렸습니다")
+                        },
+                        isEnabled: true,
+                        isToday: isToday  // RecordPage의 isToday 계산 프로퍼티 전달
+                    )
+                    .padding(.horizontal)
+                    .padding(.bottom, 20)
                 }
             }
             .navigationBarHidden(true)

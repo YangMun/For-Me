@@ -20,6 +20,7 @@
 		81986CC82D86884300A87F1A /* SpeechAIPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81986CC72D86884100A87F1A /* SpeechAIPage.swift */; };
 		81B190942D86E378004F2478 /* GPTFunction.swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B190932D86E376004F2478 /* GPTFunction.swift.swift */; };
 		81B190962D86FC02004F2478 /* SummaryChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B190952D86FBF7004F2478 /* SummaryChat.swift */; };
+		81B190982D87BE66004F2478 /* SaveRecordPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B190972D87BE56004F2478 /* SaveRecordPage.swift */; };
 		81C1582F2D6ACA2D00B9F553 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81C1582B2D6ACA2D00B9F553 /* ContentView.swift */; };
 		81C158302D6ACA2D00B9F553 /* For_MeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81C1582D2D6ACA2D00B9F553 /* For_MeApp.swift */; };
 		81C158312D6ACA2D00B9F553 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 81C158282D6ACA2D00B9F553 /* Preview Assets.xcassets */; };
@@ -44,6 +45,7 @@
 		81986CC72D86884100A87F1A /* SpeechAIPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechAIPage.swift; sourceTree = "<group>"; };
 		81B190932D86E376004F2478 /* GPTFunction.swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTFunction.swift.swift; sourceTree = "<group>"; };
 		81B190952D86FBF7004F2478 /* SummaryChat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryChat.swift; sourceTree = "<group>"; };
+		81B190972D87BE56004F2478 /* SaveRecordPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveRecordPage.swift; sourceTree = "<group>"; };
 		81C158162D6ACA2300B9F553 /* For Me.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "For Me.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81C158282D6ACA2D00B9F553 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		81C1582A2D6ACA2D00B9F553 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -114,6 +116,7 @@
 		81C1582E2D6ACA2D00B9F553 /* For Me */ = {
 			isa = PBXGroup;
 			children = (
+				81B190972D87BE56004F2478 /* SaveRecordPage.swift */,
 				81B190952D86FBF7004F2478 /* SummaryChat.swift */,
 				81B190932D86E376004F2478 /* GPTFunction.swift.swift */,
 				81986CC72D86884100A87F1A /* SpeechAIPage.swift */,
@@ -260,6 +263,7 @@
 				81986CBB2D83FA6300A87F1A /* AddTaskView.swift in Sources */,
 				81986CB92D83F84D00A87F1A /* AIChatButton.swift in Sources */,
 				81986CB52D83F27200A87F1A /* RecordPage.swift in Sources */,
+				81B190982D87BE66004F2478 /* SaveRecordPage.swift in Sources */,
 				81986CC82D86884300A87F1A /* SpeechAIPage.swift in Sources */,
 				81986C9F2D6B319C00A87F1A /* LoadingPage.swift in Sources */,
 				81986CB72D83F73A00A87F1A /* CircleScore.swift in Sources */,

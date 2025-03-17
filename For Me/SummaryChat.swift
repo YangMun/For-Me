@@ -21,9 +21,6 @@ struct SummaryChat: View {
                     
                     Spacer()
                     
-                    Text(formattedDate())
-                        .font(.caption)
-                        .foregroundColor(.gray)
                 }
                 
                 Text(summary)
@@ -41,12 +38,6 @@ struct SummaryChat: View {
         } else {
             EmptyView()
         }
-    }
-    
-    private func formattedDate() -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM월 dd일"
-        return formatter.string(from: date)
     }
 }
 

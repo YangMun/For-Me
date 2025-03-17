@@ -126,3 +126,5 @@ Secrets.plist
 # Environment files
 .env
 .env.local
+
+GoogleService-Info.plist

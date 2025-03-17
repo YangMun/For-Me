@@ -19,6 +19,7 @@
 		81986CBB2D83FA6300A87F1A /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81986CBA2D83FA6100A87F1A /* AddTaskView.swift */; };
 		81986CC82D86884300A87F1A /* SpeechAIPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81986CC72D86884100A87F1A /* SpeechAIPage.swift */; };
 		81B190942D86E378004F2478 /* GPTFunction.swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B190932D86E376004F2478 /* GPTFunction.swift.swift */; };
+		81B190962D86FC02004F2478 /* SummaryChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B190952D86FBF7004F2478 /* SummaryChat.swift */; };
 		81C1582F2D6ACA2D00B9F553 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81C1582B2D6ACA2D00B9F553 /* ContentView.swift */; };
 		81C158302D6ACA2D00B9F553 /* For_MeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81C1582D2D6ACA2D00B9F553 /* For_MeApp.swift */; };
 		81C158312D6ACA2D00B9F553 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 81C158282D6ACA2D00B9F553 /* Preview Assets.xcassets */; };
@@ -42,6 +43,7 @@
 		81986CC62D8683B400A87F1A /* For-Me-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "For-Me-Info.plist"; sourceTree = SOURCE_ROOT; };
 		81986CC72D86884100A87F1A /* SpeechAIPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechAIPage.swift; sourceTree = "<group>"; };
 		81B190932D86E376004F2478 /* GPTFunction.swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTFunction.swift.swift; sourceTree = "<group>"; };
+		81B190952D86FBF7004F2478 /* SummaryChat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryChat.swift; sourceTree = "<group>"; };
 		81C158162D6ACA2300B9F553 /* For Me.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "For Me.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81C158282D6ACA2D00B9F553 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		81C1582A2D6ACA2D00B9F553 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -112,6 +114,7 @@
 		81C1582E2D6ACA2D00B9F553 /* For Me */ = {
 			isa = PBXGroup;
 			children = (
+				81B190952D86FBF7004F2478 /* SummaryChat.swift */,
 				81B190932D86E376004F2478 /* GPTFunction.swift.swift */,
 				81986CC72D86884100A87F1A /* SpeechAIPage.swift */,
 				81986CC62D8683B400A87F1A /* For-Me-Info.plist */,
@@ -251,6 +254,7 @@
 			files = (
 				81986CA12D6B31BC00A87F1A /* HomePage.swift in Sources */,
 				81C1582F2D6ACA2D00B9F553 /* ContentView.swift in Sources */,
+				81B190962D86FC02004F2478 /* SummaryChat.swift in Sources */,
 				81B190942D86E378004F2478 /* GPTFunction.swift.swift in Sources */,
 				81C158302D6ACA2D00B9F553 /* For_MeApp.swift in Sources */,
 				81986CBB2D83FA6300A87F1A /* AddTaskView.swift in Sources */,

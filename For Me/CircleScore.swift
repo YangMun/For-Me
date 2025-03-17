@@ -8,7 +8,7 @@ struct CircleScore: View {
     var onScoreChange: ((Int) -> Void)? = nil  // 점수 변경 시 호출될 클로저 추가
     
     var body: some View {
-        VStack(spacing: 15) {
+        VStack(spacing: 10) {  // 간격을 15에서 10으로 줄임
             Text("나에게 주는 오늘의 점수")
                 .font(.system(size: 20))
                 .foregroundColor(isEnabled ? .black : .gray)
@@ -42,6 +42,6 @@ struct CircleScore: View {
                 Spacer()
             }
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 5)  // 상하 패딩을 10에서 5로 줄임
     }
 }

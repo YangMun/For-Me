@@ -85,6 +85,39 @@ class GPTFunction {
             .map { "\($0["role"] == "user" ? "사용자" : "AI"): \($0["content"] ?? "")" }
             .joined(separator: "\n")
     }
+    
+    // 대화 요약 함수 추가
+    func generateSummary(from messages: [(text: String, isUser: Bool)]) async throws -> String {
+        // 기존 대화 내용을 저장
+        let originalHistory = messageHistory
+        
+        // 요약을 위한 새로운 대화 컨텍스트 생성
+        messageHistory = [[
+            "role": "system",
+            "content": "당신은 대화 내용을 간결하게 요약하는 AI입니다. 50자 이내로 핵심만 요약해주세요."
+        ]]
+        
+        // 대화 내용을 문자열로 변환
+        let conversationString = messages.map { 
+            "\($0.isUser ? "사용자" : "AI"): \($0.text)" 
+        }.joined(separator: "\n")
+        
+        // 요약 요청
+        let summaryPrompt = "다음 대화를 50자 이내로 요약해주세요:\n\(conversationString)"
+        
+        do {
+            let summary = try await sendMessage(summaryPrompt)
+            
+            // 원래 대화 컨텍스트 복원
+            messageHistory = originalHistory
+            
+            return summary
+        } catch {
+            // 오류 발생 시 원래 대화 컨텍스트 복원하고 오류 전파
+            messageHistory = originalHistory
+            throw error
+        }
+    }
 }
 
 struct GPTResponse: Codable {

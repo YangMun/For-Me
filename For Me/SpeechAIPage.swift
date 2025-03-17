@@ -35,6 +35,8 @@ struct SpeechAIPage: View {
     @State private var conversationCount = 0  // 대화 횟수를 추적하기 위한 변수 추가
     @State private var isWaitingForResponse = false // AI 응답 대기 상태 추가
     private let maxConversations = 3  // 최대 대화 횟수 설정
+    @State private var summary: String? = nil  // 요약 내용을 저장할 변수 추가
+    @State private var isGeneratingSummary = false  // 요약 생성 중 상태 추가
     
     private let calendar = Calendar.current
     
@@ -107,24 +109,63 @@ struct SpeechAIPage: View {
                     
                     Spacer()
                     
-                    // 입력창 또는 + 버튼 표시
+                    // 입력창 또는 버튼들 표시
                     if reachedMaxConversations {
-                        // + 버튼
-                        Button(action: {
-                            // 추후 구현 예정
-                        }) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color(hex: "6E3CBC"))
-                                    .frame(width: 80, height: 80)
-                                    .shadow(color: Color.black.opacity(0.2), radius: 5)
-                                
-                                Image(systemName: "plus")
-                                    .font(.system(size: 30))
-                                    .foregroundColor(.white)
+                        // 버튼 영역 수정 - + 버튼과 요약 버튼 함께 표시
+                        HStack(spacing: 20) {
+                            // + 버튼
+                            Button(action: {
+                                // 추후 구현 예정
+                            }) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color(hex: "6E3CBC"))
+                                        .frame(width: 60, height: 60)
+                                        .shadow(color: Color.black.opacity(0.2), radius: 5)
+                                    
+                                    Image(systemName: "plus")
+                                        .font(.system(size: 24))
+                                        .foregroundColor(.white)
+                                }
                             }
+                            
+                            // 요약 버튼 - 요약 생성 후 페이지 닫힘
+                            Button(action: {
+                                generateSummary()
+                            }) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color(hex: "4CAF50"))  // 녹색 계열 색상 사용
+                                        .frame(width: 60, height: 60)
+                                        .shadow(color: Color.black.opacity(0.2), radius: 5)
+                                    
+                                    if isGeneratingSummary {
+                                        ProgressView()
+                                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                            .scaleEffect(1.2)
+                                    } else {
+                                        Image(systemName: "text.redaction")
+                                            .font(.system(size: 24))
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                            }
+                            .disabled(isGeneratingSummary)
                         }
                         .padding(.bottom, 30)
+                        
+                        // 요약 생성 중일 때만 로딩 메시지 표시
+                        if isGeneratingSummary {
+                            Text("요약 생성 중...")
+                                .foregroundColor(.gray)
+                                .padding(.bottom, 20)
+                        } else if summary == "요약 생성 실패" {
+                            // 오류 메시지만 표시 (자동으로 사라짐)
+                            Text(summary!)
+                                .foregroundColor(.red)
+                                .padding(.bottom, 20)
+                                .transition(.opacity)
+                        }
                     } else {
                         // 채팅 입력창
                         HStack(spacing: 12) {
@@ -205,9 +246,50 @@ struct SpeechAIPage: View {
             }
         }
     }
+    
+    // 요약 생성 함수 수정
+    private func generateSummary() {
+        guard !isGeneratingSummary else { return }
+        
+        isGeneratingSummary = true
+        
+        // GPTFunction의 generateSummary 함수 호출
+        Task {
+            do {
+                let summaryText = try await GPTFunction.shared.generateSummary(from: chatMessages)
+                
+                // UI 업데이트는 메인 스레드에서 수행
+                DispatchQueue.main.async {
+                    // 요약 내용을 SummaryManager에 저장
+                    SummaryManager.shared.saveSummary(summaryText, for: selectedDate)
+                    
+                    // 요약 생성 완료 후 페이지 닫기
+                    dismiss()
+                }
+            } catch {
+                // 오류 발생 시 처리
+                DispatchQueue.main.async {
+                    isGeneratingSummary = false
+                    
+                    // 오류 메시지 표시 (1.5초 후 사라짐)
+                    withAnimation {
+                        summary = "요약 생성 실패"
+                    }
+                    
+                    // 1.5초 후 오류 메시지 숨기기
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        withAnimation {
+                            summary = nil
+                        }
+                    }
+                    
+                    print("요약 생성 오류: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
 }
 
 #Preview {
     SpeechAIPage(selectedDate: Date())
 }
-

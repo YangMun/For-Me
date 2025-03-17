@@ -11,6 +11,7 @@ struct RecordPage: View {
     @State private var showDeleteAlert = false  // 삭제 확인 알림
     @State private var taskToDelete: String?    // 삭제할 task
     @State private var showSpeechAIPage = false
+    @State private var chatSummary: String? = nil  // 대화 요약 내용을 저장할 변수 추가
     
     private let calendar = Calendar.current
     
@@ -39,7 +40,7 @@ struct RecordPage: View {
                         cancelEditing()
                     }
                 
-                VStack(spacing: 20) {
+                VStack(spacing: 15) {  // 전체 간격을 20에서 15로 줄임
                     // 상단 헤더 수정
                     HStack {
                         Text("\(calendar.component(.day, from: selectedDate))일")
@@ -48,17 +49,21 @@ struct RecordPage: View {
                         
                         Spacer()
                         
-                        // + 버튼 수정
+                        // + 버튼 수정 - 오늘 날짜일 때만 활성화
                         Button(action: {
-                            cancelEditing()  // 수정 모드 해제
-                            showAddTaskSheet = true
+                            if isToday {  // 오늘 날짜일 때만 동작
+                                cancelEditing()
+                                showAddTaskSheet = true
+                            }
                         }) {
                             Image(systemName: "plus")
                                 .font(.title2)
-                                .foregroundColor(Color.accentColor)
-                                .frame(width: 44, height: 44)  // 탭 영역 확장
-                                .contentShape(Rectangle())     // 전체 영역을 탭 가능하게 설정
+                                .foregroundColor(isToday ? Color.accentColor : Color.gray)  // 오늘이 아니면 회색으로 표시
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
                         }
+                        .disabled(!isToday)  // 오늘 날짜가 아니면 비활성화
+                        .opacity(isToday ? 1.0 : 0.5)  // 오늘 날짜가 아니면 투명도 낮춤
                     }
                     .padding(.horizontal)
                     .padding(.top, 10)
@@ -119,32 +124,39 @@ struct RecordPage: View {
                         }
                         .padding(.horizontal)
                     }
-                    .frame(maxHeight: 250)
+                    .frame(maxHeight: 230)  // 할 일 목록 높이를 250에서 230으로 줄임
                     
                     // CircleScore 수정
                     CircleScore(
                         score: $selectedScore,
                         isEnabled: isToday,
                         date: selectedDate,
-                        onScoreChange: { _ in  // 점수 변경 시 호출될 클로저 추가
+                        onScoreChange: { _ in
                             cancelEditing()
                         }
                     )
                     .padding(.horizontal)
+                    .padding(.vertical, 5)
                     .allowsHitTesting(true)
                     
                     // AIChatButton 수정
                     AIChatButton(
                         action: {
-                            cancelEditing()  // 수정 모드 해제
-                            showSpeechAIPage = true  // SpeechAIPage 표시를 위한 상태 변수 활성화
+                            cancelEditing()
+                            showSpeechAIPage = true
                         },
                         isEnabled: isToday,
                         isAdReady: true
                     )
                     .padding(.horizontal)
-                    .padding(.top, 30)
+                    .padding(.top, 5)
                     .allowsHitTesting(true)
+                    
+                    // 대화 요약 표시
+                    if let summary = chatSummary {
+                        SummaryChat(summary: summary, date: selectedDate)
+                            .padding(.top, 5)  // 상단 패딩 추가
+                    }
                     
                     Spacer()
                 }
@@ -154,13 +166,18 @@ struct RecordPage: View {
                 AddTaskView(
                     selectedDate: selectedDate,
                     onTaskAdded: { newTask in
-                        cancelEditing()  // 수정 모드 해제
+                        cancelEditing()
                         tasks.append(newTask)
                     },
-                    existingTasks: tasks  // 기존 할 일 목록 전달
+                    existingTasks: tasks
                 )
             }
-            .sheet(isPresented: $showSpeechAIPage) {
+            .sheet(isPresented: $showSpeechAIPage, onDismiss: {
+                // SpeechAIPage가 닫힐 때 요약 다시 불러오기
+                withAnimation {
+                    loadSummary()
+                }
+            }) {
                 SpeechAIPage(selectedDate: selectedDate)
             }
             // 삭제 확인 알림
@@ -177,10 +194,28 @@ struct RecordPage: View {
             } message: {
                 Text("정말로 이 할 일을 삭제하시겠습니까?")
             }
+            .onAppear {
+                // 페이지가 나타날 때 해당 날짜의 요약 불러오기
+                loadSummary()
+            }
         }
         .environment(\.colorScheme, .light)
         .presentationDetents([.large])
         .presentationDragIndicator(.hidden)
+    }
+    
+    // 요약 불러오기 함수 수정
+    private func loadSummary() {
+        let newSummary = SummaryManager.shared.getSummary(for: selectedDate)
+        
+        // 요약이 변경되었을 때만 애니메이션 적용
+        if chatSummary != newSummary {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                chatSummary = newSummary
+            }
+        } else {
+            chatSummary = newSummary
+        }
     }
 }
 

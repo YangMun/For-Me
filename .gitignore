@@ -128,3 +128,5 @@ Secrets.plist
 .env.local
 
 GoogleService-Info.plist
+**/GoogleService-Info.plist
+For\ Me/GoogleService-Info.plist

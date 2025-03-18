@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		815D17602D890753005437E5 /* UserIdClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 815D175F2D89074E005437E5 /* UserIdClass.swift */; };
 		81986C992D6ACCB400A87F1A /* Hakgyoansim Badasseugi TTF B.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 81986C952D6ACCB400A87F1A /* Hakgyoansim Badasseugi TTF B.ttf */; };
 		81986C9A2D6ACCB400A87F1A /* Hakgyoansim Geurimilgi TTF R.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 81986C972D6ACCB400A87F1A /* Hakgyoansim Geurimilgi TTF R.ttf */; };
 		81986C9B2D6ACCB400A87F1A /* Hakgyoansim Badasseugi TTF L.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 81986C962D6ACCB400A87F1A /* Hakgyoansim Badasseugi TTF L.ttf */; };
@@ -21,10 +22,11 @@
 		81B190942D86E378004F2478 /* GPTFunction.swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B190932D86E376004F2478 /* GPTFunction.swift.swift */; };
 		81B190962D86FC02004F2478 /* SummaryChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B190952D86FBF7004F2478 /* SummaryChat.swift */; };
 		81B190982D87BE66004F2478 /* SaveRecordPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B190972D87BE56004F2478 /* SaveRecordPage.swift */; };
-		81B190A92D880047004F2478 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 81B190A82D880047004F2478 /* GoogleService-Info.plist */; };
 		81B190AC2D880098004F2478 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 81B190AB2D880098004F2478 /* FirebaseAnalytics */; };
 		81B190AE2D880098004F2478 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 81B190AD2D880098004F2478 /* FirebaseCore */; };
 		81B190B02D880098004F2478 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 81B190AF2D880098004F2478 /* FirebaseFirestore */; };
+		81B190B22D880841004F2478 /* FirStoreSave.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B190B12D880840004F2478 /* FirStoreSave.swift */; };
+		81B190B42D88114B004F2478 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 81B190B32D88114B004F2478 /* GoogleService-Info.plist */; };
 		81C1582F2D6ACA2D00B9F553 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81C1582B2D6ACA2D00B9F553 /* ContentView.swift */; };
 		81C158302D6ACA2D00B9F553 /* For_MeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81C1582D2D6ACA2D00B9F553 /* For_MeApp.swift */; };
 		81C158312D6ACA2D00B9F553 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 81C158282D6ACA2D00B9F553 /* Preview Assets.xcassets */; };
@@ -34,6 +36,7 @@
 
 /* Begin PBXFileReference section */
 		7F9B560056E38D713674B334 /* Pods-For Me.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-For Me.release.xcconfig"; path = "Target Support Files/Pods-For Me/Pods-For Me.release.xcconfig"; sourceTree = "<group>"; };
+		815D175F2D89074E005437E5 /* UserIdClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserIdClass.swift; sourceTree = "<group>"; };
 		81986C952D6ACCB400A87F1A /* Hakgyoansim Badasseugi TTF B.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Hakgyoansim Badasseugi TTF B.ttf"; sourceTree = "<group>"; };
 		81986C962D6ACCB400A87F1A /* Hakgyoansim Badasseugi TTF L.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Hakgyoansim Badasseugi TTF L.ttf"; sourceTree = "<group>"; };
 		81986C972D6ACCB400A87F1A /* Hakgyoansim Geurimilgi TTF R.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Hakgyoansim Geurimilgi TTF R.ttf"; sourceTree = "<group>"; };
@@ -50,7 +53,8 @@
 		81B190932D86E376004F2478 /* GPTFunction.swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTFunction.swift.swift; sourceTree = "<group>"; };
 		81B190952D86FBF7004F2478 /* SummaryChat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryChat.swift; sourceTree = "<group>"; };
 		81B190972D87BE56004F2478 /* SaveRecordPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveRecordPage.swift; sourceTree = "<group>"; };
-		81B190A82D880047004F2478 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		81B190B12D880840004F2478 /* FirStoreSave.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirStoreSave.swift; sourceTree = "<group>"; };
+		81B190B32D88114B004F2478 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		81C158162D6ACA2300B9F553 /* For Me.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "For Me.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81C158282D6ACA2D00B9F553 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		81C1582A2D6ACA2D00B9F553 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -124,6 +128,8 @@
 		81C1582E2D6ACA2D00B9F553 /* For Me */ = {
 			isa = PBXGroup;
 			children = (
+				81B190B12D880840004F2478 /* FirStoreSave.swift */,
+				815D175F2D89074E005437E5 /* UserIdClass.swift */,
 				81B190972D87BE56004F2478 /* SaveRecordPage.swift */,
 				81B190952D86FBF7004F2478 /* SummaryChat.swift */,
 				81B190932D86E376004F2478 /* GPTFunction.swift.swift */,
@@ -142,7 +148,7 @@
 				81986CBC2D83FDE000A87F1A /* ClickDate */,
 				81C1582C2D6ACA2D00B9F553 /* For_Me.entitlements */,
 				81C1582D2D6ACA2D00B9F553 /* For_MeApp.swift */,
-				81B190A82D880047004F2478 /* GoogleService-Info.plist */,
+				81B190B32D88114B004F2478 /* GoogleService-Info.plist */,
 			);
 			path = "For Me";
 			sourceTree = "<group>";
@@ -232,7 +238,7 @@
 				81986C992D6ACCB400A87F1A /* Hakgyoansim Badasseugi TTF B.ttf in Resources */,
 				81986C9A2D6ACCB400A87F1A /* Hakgyoansim Geurimilgi TTF R.ttf in Resources */,
 				81986C9B2D6ACCB400A87F1A /* Hakgyoansim Badasseugi TTF L.ttf in Resources */,
-				81B190A92D880047004F2478 /* GoogleService-Info.plist in Resources */,
+				81B190B42D88114B004F2478 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -270,6 +276,8 @@
 			files = (
 				81986CA12D6B31BC00A87F1A /* HomePage.swift in Sources */,
 				81C1582F2D6ACA2D00B9F553 /* ContentView.swift in Sources */,
+				815D17602D890753005437E5 /* UserIdClass.swift in Sources */,
+				81B190B22D880841004F2478 /* FirStoreSave.swift in Sources */,
 				81B190962D86FC02004F2478 /* SummaryChat.swift in Sources */,
 				81B190942D86E378004F2478 /* GPTFunction.swift.swift in Sources */,
 				81C158302D6ACA2D00B9F553 /* For_MeApp.swift in Sources */,

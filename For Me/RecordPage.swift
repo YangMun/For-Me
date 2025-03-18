@@ -30,7 +30,8 @@ struct RecordPage: View {
             editingTask = nil
         }
     }
-    
+
+
     var body: some View {
         NavigationView {
             ZStack {
@@ -154,9 +155,9 @@ struct RecordPage: View {
                             }
                             // 광고가 준비된 경우는 옵저버에서 처리 (광고 닫힘 이벤트 후 자동으로 SpeechAIPage 표시)
                         },
-                        isEnabled: isToday,
+                        isEnabled: isToday && chatSummary == nil,
                         isAdReady: true,
-                        isChatCompleted: chatSummary != nil  // 요약이 있으면 대화 완료 상태
+                        isChatCompleted: chatSummary != nil
                     )
                     .padding(.horizontal)
                     .padding(.top, 5)

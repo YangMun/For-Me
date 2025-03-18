@@ -181,7 +181,7 @@ extension AdMobManager: GADBannerViewDelegate {
         isHomeBannerReady = false
         
         // 실패시 다시 시도
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 60) { [weak self] in
             self?.homeBanner?.load(GADRequest())
         }
     }

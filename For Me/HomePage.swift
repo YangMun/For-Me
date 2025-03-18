@@ -12,6 +12,7 @@ struct CustomCalendarView: View {
     @State private var showRecordPage = false  // RecordPage 표시 여부
     @State private var lastSelectedDate: Date? = nil // 마지막으로 선택된 날짜
     @State private var userRecords: [String: [String: Any]] = [:]  // 날짜별 기록 데이터를 저장할 상태 변수
+    let preloadedRecords: [String: [String: Any]]
     
     private let calendar = Calendar.current
     private let dateFormatter: DateFormatter = {
@@ -23,7 +24,7 @@ struct CustomCalendarView: View {
     private let days = ["일", "월", "화", "수", "목", "금", "토"]
     private let columns = Array(repeating: GridItem(.flexible()), count: 7)
     
-    init() {
+    init(preloadedRecords: [String: [String: Any]] = [:]) {
         let currentDate = Date()
         let calendar = Calendar.current
         let year = calendar.component(.year, from: currentDate)
@@ -33,6 +34,8 @@ struct CustomCalendarView: View {
         _currentMonth = State(initialValue: calendar.date(from: DateComponents(year: year, month: month)) ?? currentDate)
         
         endYear = min(year + 5, 2099)
+        self.preloadedRecords = preloadedRecords
+        _userRecords = State(initialValue: preloadedRecords)
     }
     
     var body: some View {
@@ -195,8 +198,10 @@ struct CustomCalendarView: View {
         )
         .animation(.easeInOut, value: currentMonth)
         .onAppear {
-            // 앱이 시작될 때 모든 기록 한 번에 로드
-            loadAllRecords()
+            // 이미 데이터가 있다면 다시 로드하지 않음
+            if userRecords.isEmpty {
+                loadAllRecords()
+            }
         }
     }
     
@@ -342,12 +347,13 @@ struct DayCell: View {
 struct HomePage: View {
     @State private var selectedTab = 0
     @Environment(\.colorScheme) var colorScheme
+    let preloadedRecords: [String: [String: Any]]
     
     var body: some View {
         TabView(selection: $selectedTab) {
             GeometryReader { geometry in
                 VStack(spacing: 0) {
-                    CustomCalendarView()
+                    CustomCalendarView(preloadedRecords: preloadedRecords)
                         .frame(height: geometry.size.height)
                         .padding(.horizontal, 0)
                         .padding(.top, 1)
@@ -541,5 +547,5 @@ struct PrivacyPolicyView: View {
 }
 
 #Preview {
-    HomePage()
+    HomePage(preloadedRecords: [:])
 }

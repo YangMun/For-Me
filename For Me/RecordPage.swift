@@ -28,7 +28,8 @@ struct RecordPage: View {
             editingTask = nil
         }
     }
-    
+
+
     var body: some View {
         NavigationView {
             ZStack {

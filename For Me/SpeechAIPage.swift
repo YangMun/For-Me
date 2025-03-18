@@ -38,6 +38,13 @@ struct SpeechAIPage: View {
     @State private var summary: String? = nil  // 요약 내용을 저장할 변수 추가
     @State private var isGeneratingSummary = false  // 요약 생성 중 상태 추가
     
+    // 리워드 광고 관련 상태 추가
+    @State private var showAdAlert = false
+    @State private var isWatchingAd = false
+    @State private var extraConversationsCount = 0 // 추가 대화 횟수 추적
+    @State private var adWatchCount = 0  // 광고 시청 횟수를 추적
+    private let maxAdWatchCount = 2      // 최대 광고 시청 횟수
+    
     private let calendar = Calendar.current
     
     // 대화 횟수 계산 (사용자 메시지 기준)
@@ -47,7 +54,12 @@ struct SpeechAIPage: View {
     
     // 대화 횟수 제한에 도달했는지 확인
     private var reachedMaxConversations: Bool {
-        userMessageCount >= maxConversations
+        userMessageCount >= maxConversations + extraConversationsCount
+    }
+    
+    // 최대 광고 시청 횟수에 도달했는지 확인
+    private var reachedMaxAdWatchCount: Bool {
+        adWatchCount >= maxAdWatchCount
     }
     
     var body: some View {
@@ -113,19 +125,22 @@ struct SpeechAIPage: View {
                     if reachedMaxConversations {
                         // 버튼 영역 수정 - + 버튼과 요약 버튼 함께 표시
                         HStack(spacing: 20) {
-                            // + 버튼
-                            Button(action: {
-                                // 추후 구현 예정
-                            }) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color(hex: "6E3CBC"))
-                                        .frame(width: 60, height: 60)
-                                        .shadow(color: Color.black.opacity(0.2), radius: 5)
-                                    
-                                    Image(systemName: "plus")
-                                        .font(.system(size: 24))
-                                        .foregroundColor(.white)
+                            // + 버튼 (리워드 광고로 추가 대화 활성화) - 최대 광고 시청 횟수에 도달하지 않았을 때만 표시
+                            if !reachedMaxAdWatchCount {
+                                Button(action: {
+                                    // 광고 시청 확인 알림 표시
+                                    showAdAlert = true
+                                }) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color(hex: "6E3CBC"))
+                                            .frame(width: 60, height: 60)
+                                            .shadow(color: Color.black.opacity(0.2), radius: 5)
+                                        
+                                        Image(systemName: "plus")
+                                            .font(.system(size: 24))
+                                            .foregroundColor(.white)
+                                    }
                                 }
                             }
                             
@@ -153,6 +168,17 @@ struct SpeechAIPage: View {
                             .disabled(isGeneratingSummary)
                         }
                         .padding(.bottom, 30)
+                        
+                        // 광고 시청 횟수 표시 또는 제한 도달 메시지 표시
+                        if reachedMaxAdWatchCount {
+                            Text("오늘의 추가 대화 기회를 모두 사용했습니다")
+                                .foregroundColor(.gray)
+                                .padding(.bottom, 10)
+                        } else {
+                            Text("남은 추가 대화 기회: \(maxAdWatchCount - adWatchCount)회")
+                                .foregroundColor(.gray)
+                                .padding(.bottom, 10)
+                        }
                         
                         // 요약 생성 중일 때만 로딩 메시지 표시
                         if isGeneratingSummary {
@@ -196,8 +222,92 @@ struct SpeechAIPage: View {
                     }
                 }
             }
+            // 광고 시청 확인 알림 추가
+            .alert("추가 대화 활성화", isPresented: $showAdAlert) {
+                Button("취소", role: .cancel) { }
+                Button("광고 시청하기") {
+                    watchRewardAd()
+                }
+            } message: {
+                Text("광고를 보고 3회 추가 대화를 하시겠습니까?\n(남은 기회: \(maxAdWatchCount - adWatchCount)회)")
+            }
         }
         .environment(\.colorScheme, .light)
+        .onAppear {
+            // 리워드 광고 미리 로드
+            if !AdMobManager.shared.isRewardedAdReady {
+                AdMobManager.shared.loadRewardedAd()
+            }
+        }
+    }
+    
+    // 리워드 광고 시청 함수 개선 - weak self 제거
+    private func watchRewardAd() {
+        // 이미 광고 시청 중이거나 최대 시청 횟수에 도달한 경우 중단
+        guard !isWatchingAd && !reachedMaxAdWatchCount else { return }
+        
+        if AdMobManager.shared.isRewardedAdReady {
+            isWatchingAd = true
+            
+            // 약간의 지연 후 광고 표시 시도 (UI 업데이트가 완료되도록)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                let adShown = AdMobManager.shared.showRewardedAd { success in
+                    DispatchQueue.main.async {
+                        self.isWatchingAd = false
+                        
+                        if success {
+                            // 광고 시청 성공 시 추가 대화 횟수 증가 및 시청 횟수 증가
+                            self.extraConversationsCount += 3  // 3회 추가 대화 허용
+                            self.adWatchCount += 1  // 광고 시청 횟수 증가
+                        }
+                    }
+                }
+                
+                // 광고 표시 실패 시
+                if !adShown {
+                    DispatchQueue.main.async {
+                        self.isWatchingAd = false
+                        
+                        // 실패 시 기본 보상 제공 (광고 시청 횟수는 증가하지 않음)
+                        self.extraConversationsCount += 1  // 1회 추가 대화 허용
+                        
+                        // 광고 로드 실패 메시지 표시
+                        withAnimation {
+                            self.chatMessages.append((text: "광고 표시에 문제가 있어 1회 추가 대화를 제공합니다.", isUser: false))
+                        }
+                    }
+                }
+            }
+        } else {
+            // 광고가 준비되지 않은 경우 로드 시작
+            isWatchingAd = true
+            
+            // 로딩 메시지 표시
+            withAnimation {
+                self.chatMessages.append((text: "광고를 준비 중입니다. 잠시만 기다려주세요...", isUser: false))
+            }
+            
+            // 광고 로드 후 시도
+            AdMobManager.shared.loadRewardedAd {
+                // 광고가 준비되면 다시 시도
+                if AdMobManager.shared.isRewardedAdReady {
+                    self.watchRewardAd()
+                } else {
+                    // 로드 실패 시
+                    DispatchQueue.main.async {
+                        self.isWatchingAd = false
+                        
+                        // 실패 시 기본 보상 제공 (광고 시청 횟수는 증가하지 않음)
+                        self.extraConversationsCount += 1
+                        
+                        // 실패 메시지 표시
+                        withAnimation {
+                            self.chatMessages.append((text: "광고 로드에 실패했습니다. 1회 추가 대화를 제공합니다.", isUser: false))
+                        }
+                    }
+                }
+            }
+        }
     }
     
     private func sendMessage() {

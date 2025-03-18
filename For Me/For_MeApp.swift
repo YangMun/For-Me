@@ -1,7 +1,6 @@
 import SwiftUI
-
-import SwiftUI
 import FirebaseCore
+import GoogleMobileAds
 
 
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -9,6 +8,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
       
     FirebaseApp.configure()
+
+    initializeAdMob()
 
     return true
   }

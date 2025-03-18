@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		815D17602D890753005437E5 /* UserIdClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 815D175F2D89074E005437E5 /* UserIdClass.swift */; };
+		815D17622D8930DA005437E5 /* AdmobBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 815D17612D8930D0005437E5 /* AdmobBanner.swift */; };
 		81986C992D6ACCB400A87F1A /* Hakgyoansim Badasseugi TTF B.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 81986C952D6ACCB400A87F1A /* Hakgyoansim Badasseugi TTF B.ttf */; };
 		81986C9A2D6ACCB400A87F1A /* Hakgyoansim Geurimilgi TTF R.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 81986C972D6ACCB400A87F1A /* Hakgyoansim Geurimilgi TTF R.ttf */; };
 		81986C9B2D6ACCB400A87F1A /* Hakgyoansim Badasseugi TTF L.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 81986C962D6ACCB400A87F1A /* Hakgyoansim Badasseugi TTF L.ttf */; };
@@ -37,6 +38,7 @@
 /* Begin PBXFileReference section */
 		7F9B560056E38D713674B334 /* Pods-For Me.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-For Me.release.xcconfig"; path = "Target Support Files/Pods-For Me/Pods-For Me.release.xcconfig"; sourceTree = "<group>"; };
 		815D175F2D89074E005437E5 /* UserIdClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserIdClass.swift; sourceTree = "<group>"; };
+		815D17612D8930D0005437E5 /* AdmobBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdmobBanner.swift; sourceTree = "<group>"; };
 		81986C952D6ACCB400A87F1A /* Hakgyoansim Badasseugi TTF B.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Hakgyoansim Badasseugi TTF B.ttf"; sourceTree = "<group>"; };
 		81986C962D6ACCB400A87F1A /* Hakgyoansim Badasseugi TTF L.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Hakgyoansim Badasseugi TTF L.ttf"; sourceTree = "<group>"; };
 		81986C972D6ACCB400A87F1A /* Hakgyoansim Geurimilgi TTF R.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Hakgyoansim Geurimilgi TTF R.ttf"; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 		81C1582E2D6ACA2D00B9F553 /* For Me */ = {
 			isa = PBXGroup;
 			children = (
+				815D17612D8930D0005437E5 /* AdmobBanner.swift */,
 				81B190B12D880840004F2478 /* FirStoreSave.swift */,
 				815D175F2D89074E005437E5 /* UserIdClass.swift */,
 				81B190972D87BE56004F2478 /* SaveRecordPage.swift */,
@@ -181,6 +184,7 @@
 				81C158122D6ACA2300B9F553 /* Sources */,
 				81C158132D6ACA2300B9F553 /* Frameworks */,
 				81C158142D6ACA2300B9F553 /* Resources */,
+				B5E595A77DDCB9B93A715B25 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -245,6 +249,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		B5E595A77DDCB9B93A715B25 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-For Me/Pods-For Me-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-For Me/Pods-For Me-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-For Me/Pods-For Me-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		C6D578D1B2738E9BF81DDC15 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -279,6 +300,7 @@
 				815D17602D890753005437E5 /* UserIdClass.swift in Sources */,
 				81B190B22D880841004F2478 /* FirStoreSave.swift in Sources */,
 				81B190962D86FC02004F2478 /* SummaryChat.swift in Sources */,
+				815D17622D8930DA005437E5 /* AdmobBanner.swift in Sources */,
 				81B190942D86E378004F2478 /* GPTFunction.swift.swift in Sources */,
 				81C158302D6ACA2D00B9F553 /* For_MeApp.swift in Sources */,
 				81986CBB2D83FA6300A87F1A /* AddTaskView.swift in Sources */,

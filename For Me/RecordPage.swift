@@ -14,6 +14,8 @@ struct RecordPage: View {
     @State private var chatSummary: String? = nil  // 대화 요약 내용을 저장할 변수 추가
     @State private var showSaveAlert = false  // 저장 성공 알림 추가
     @State private var saveErrorMessage: String? = nil  // 저장 실패 메시지 저장
+    @State private var adObserverAdded = false
+    @State private var observer: NSObjectProtocol? = nil
     
     private let calendar = Calendar.current
     
@@ -145,10 +147,16 @@ struct RecordPage: View {
                     AIChatButton(
                         action: {
                             cancelEditing()
-                            showSpeechAIPage = true
+                            
+                            // 광고가 준비되지 않은 경우 바로 SpeechAIPage 표시
+                            if !AdMobManager.shared.isInterstitialReady {
+                                showSpeechAIPage = true
+                            }
+                            // 광고가 준비된 경우는 옵저버에서 처리 (광고 닫힘 이벤트 후 자동으로 SpeechAIPage 표시)
                         },
                         isEnabled: isToday,
-                        isAdReady: true
+                        isAdReady: true,
+                        isChatCompleted: chatSummary != nil  // 요약이 있으면 대화 완료 상태
                     )
                     .padding(.horizontal)
                     .padding(.top, 5)
@@ -232,6 +240,30 @@ struct RecordPage: View {
                 
                 // 페이지가 나타날 때 Firestore에서 데이터 불러오기
                 loadDataFromFirestore()
+                
+                // 페이지가 나타날 때 전면 광고 로드 (아직 로드되지 않은 경우)
+                if !AdMobManager.shared.isInterstitialReady {
+                    AdMobManager.shared.loadInterstitialAd()
+                }
+                
+                // 옵저버가 아직 없는 경우에만 추가
+                if observer == nil {
+                    observer = NotificationCenter.default.addObserver(
+                        forName: NSNotification.Name("AdDismissed"),
+                        object: nil,
+                        queue: .main
+                    ) { _ in
+                        // 광고가 닫힌 후 SpeechAIPage 표시
+                        showSpeechAIPage = true
+                    }
+                }
+            }
+            .onDisappear {
+                // 페이지가 사라질 때 옵저버 제거
+                if let observer = observer {
+                    NotificationCenter.default.removeObserver(observer)
+                    self.observer = nil
+                }
             }
         }
         .environment(\.colorScheme, .light)

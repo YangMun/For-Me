@@ -7,7 +7,6 @@ struct CustomCalendarView: View {
     @State private var currentMonth = Date()
     @GestureState private var dragOffset: CGFloat = 0
     @State private var showDatePicker = false
-    @State private var showTimerPage = false  // TimerPage 표시 여부
     @State private var currentYear: Int
     let endYear: Int
     @State private var showRecordPage = false  // RecordPage 표시 여부
@@ -57,21 +56,12 @@ struct CustomCalendarView: View {
                     
                     Spacer()
                     
-                    // 타이머 버튼 (비활성화)
-                    // TODO: TimerPage 구현 예정
-                    Button(action: {
-                        // showTimerPage = true  // TimerPage 구현 시 주석 해제
-                    }) {
-                        Image(systemName: "timer")
-                            .font(.title2)
-                            .foregroundColor(.black)
-                    }
                 }
                 .padding(.horizontal)
                 .padding(.top, 15)
                 
                 // 배너 광고 공간 (임시)
-                Color.clear
+                HomeBannerView()
                     .frame(height: 50)
                     .padding(.vertical, 5)
                 
@@ -204,15 +194,6 @@ struct CustomCalendarView: View {
                 }
         )
         .animation(.easeInOut, value: currentMonth)
-        // TimerPage 시트 제거
-        // .sheet(isPresented: $showTimerPage) {
-        //     TimerPage()
-        // }
-        
-        // RecordPage 시트 제거
-        // .sheet(isPresented: $showRecordPage) {
-        //     RecordPage(selectedDate: selectedDate)
-        // }
         .onAppear {
             // 앱이 시작될 때 모든 기록 한 번에 로드
             loadAllRecords()
@@ -413,28 +394,6 @@ struct SettingsView: View {
                 VStack(spacing: 16) {
                     // 설정 옵션들
                     VStack(spacing: 0) {
-                        // 알림 설정
-                        HStack {
-                            Image(systemName: "bell.fill")
-                                .foregroundColor(.blue)
-                                .frame(width: 25)
-                            Text("알림 설정")
-                                .foregroundColor(.black)
-                            Spacer()
-                            Toggle("", isOn: $notificationsEnabled)
-                                .tint(Color(hex: "6E3CBC"))
-                                .onChange(of: notificationsEnabled) { newValue in
-                                    if newValue {
-                                        requestNotificationPermission()
-                                    } else {
-                                        UserDefaults.standard.set(false, forKey: "notificationsEnabled")
-                                    }
-                                }
-                        }
-                        .padding()
-                        
-                        Divider()
-                        
                         // 앱 정보
                         NavigationLink(destination: AppInfoView()) {
                             HStack {
@@ -478,58 +437,8 @@ struct SettingsView: View {
                 }
             }
             .navigationBarHidden(true)
-            .alert("알림 설정", isPresented: $showNotificationAlert) {
-                Button("설정") {
-                    openAppSettings()
-                }
-                Button("취소", role: .cancel) {
-                    notificationsEnabled = false
-                }
-            } message: {
-                Text("알림을 활성화하려면 설정에서 알림을 허용해주세요.")
-            }
         }
         .environment(\.colorScheme, .light)
-    }
-    
-    private func checkNotificationStatus() {
-        UNUserNotificationCenter.current().getNotificationSettings { settings in
-            DispatchQueue.main.async {
-                notificationsEnabled = settings.authorizationStatus == .authorized
-            }
-        }
-    }
-    
-    private func requestNotificationPermission() {
-        UNUserNotificationCenter.current().getNotificationSettings { settings in
-            DispatchQueue.main.async {
-                switch settings.authorizationStatus {
-                case .notDetermined:
-                    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-                        DispatchQueue.main.async {
-                            notificationsEnabled = granted
-                            UserDefaults.standard.set(granted, forKey: "notificationsEnabled")
-                            // TimerManager 관련 코드 제거
-                        }
-                    }
-                case .denied:
-                    notificationsEnabled = false
-                    showNotificationAlert = true
-                case .authorized:
-                    notificationsEnabled = true
-                    UserDefaults.standard.set(true, forKey: "notificationsEnabled")
-                    // TimerManager 관련 코드 제거
-                default:
-                    break
-                }
-            }
-        }
-    }
-    
-    private func openAppSettings() {
-        if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
-            UIApplication.shared.open(settingsUrl)
-        }
     }
 }
 
@@ -584,25 +493,43 @@ struct PrivacyPolicyView: View {
                     
                     Text("1. 개인정보의 처리 목적")
                         .font(.headline)
-                    Text("ForMe는 다음의 목적을 위하여 개인정보를 처리합니다:\n• 앱 서비스 제공 및 계정 관리\n• 타이머 기능 및 알림 서비스 제공\n• 사용자 경험 개선 및 서비스 품질 향상")
+                    Text("ForMe는 다음의 목적을 위하여 개인정보를 처리합니다:\n• 사용자 일상 기록 서비스 제공\n• AI 대화 기능 제공 및 대화 내용 저장\n• 사용자 경험 개선 및 서비스 품질 향상")
                     
-                    Text("2. 개인정보의 보유 및 이용기간")
+                    Text("2. 수집하는 개인정보 항목")
                         .font(.headline)
-                    Text("사용자의 개인정보는 서비스 이용 종료 또는 앱 삭제 시까지 보관됩니다.")
+                    Text("ForMe는 다음의 개인정보 항목을 수집합니다:\n• 기기 고유 식별자\n• 사용자가 작성한 일상 기록 및 과제\n• AI와의 대화 내용\n• 앱 사용 로그")
+                    
+                    Text("3. 개인정보의 보유 및 이용기간")
+                        .font(.headline)
+                    Text("사용자의 개인정보는 서비스 이용 기간 동안 안전하게 보관되며, 계정 삭제 시 모든 데이터가 삭제됩니다.")
                 }
                 
                 Group {
-                    Text("3. 개인정보의 파기")
+                    Text("4. 개인정보의 파기")
                         .font(.headline)
-                    Text("앱 삭제 시 즉시 모든 개인정보를 파기하며, 이는 복구할 수 없습니다.")
+                    Text("앱 삭제 후 모든 개인정보는 자동으로 파기되며, 이는 복구할 수 없습니다.")
                     
-                    Text("4. 개인정보의 제3자 제공")
+                    Text("5. 개인정보의 제3자 제공")
                         .font(.headline)
                     Text("ForMe는 사용자의 개인정보를 제3자에게 제공하지 않습니다.")
                     
-                    Text("5. 개인정보 보호 책임자")
+                    Text("6. AI 대화 데이터 처리")
+                        .font(.headline)
+                    Text("ForMe의 AI 대화 기능은 OpenAI API를 사용합니다. 사용자와 AI 간의 대화 내용은 대화 품질 향상을 위해 OpenAI에 전송될 수 있으며, 이는 OpenAI의 개인정보 처리방침을 따릅니다.")
+                    
+                    
+                    Text("7. 개인정보 보호 책임자")
                         .font(.headline)
                     Text("개인정보 보호 책임자\n이메일: yang486741@gmail.com")
+                    
+                    Text("8. 변경 사항 고지")
+                        .font(.headline)
+                    Text("본 개인정보 처리방침은 법률 또는 서비스 변경사항을 반영하기 위해 수정될 수 있습니다. 변경사항이 있을 경우 앱 내 공지를 통해 사용자에게 알립니다.")
+                    
+                    Text("마지막 업데이트: 2024년 3월 18일")
+                        .font(.footnote)
+                        .foregroundColor(.gray)
+                        .padding(.top, 10)
                 }
             }
             .padding()

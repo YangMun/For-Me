@@ -1,3 +1,20 @@
-PODFILE CHECKSUM: 84d858fe7a24e35c58e3678e4cbf177fafdadb86
+PODS:
+  - Google-Mobile-Ads-SDK (11.12.0):
+    - GoogleUserMessagingPlatform (>= 1.1)
+  - GoogleUserMessagingPlatform (2.7.0)
+
+DEPENDENCIES:
+  - Google-Mobile-Ads-SDK
+
+SPEC REPOS:
+  trunk:
+    - Google-Mobile-Ads-SDK
+    - GoogleUserMessagingPlatform
+
+SPEC CHECKSUMS:
+  Google-Mobile-Ads-SDK: 3a76704456669fbed2057efc8bdb99050ad0e3fb
+  GoogleUserMessagingPlatform: a8b56893477f67212fbc8411c139e61d463349f5
+
+PODFILE CHECKSUM: de5d1fc73687c88c2a3dd2ff027d887bcbe25895
 
 COCOAPODS: 1.16.2

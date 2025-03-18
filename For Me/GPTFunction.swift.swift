@@ -103,7 +103,7 @@ class GPTFunction {
         }.joined(separator: "\n")
         
         // 요약 요청
-        let summaryPrompt = "다음 대화를 50자 이내로 요약해주세요:\n\(conversationString)"
+        let summaryPrompt = "다음 대화를 100자 이내로 요약해주세요:\n\(conversationString)"
         
         do {
             let summary = try await sendMessage(summaryPrompt)

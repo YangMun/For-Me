@@ -6,5 +6,5 @@ target 'For Me' do
   use_frameworks!
 
   # Admob 광고
-  # pod 'Google-Mobile-Ads-SDK'
+  pod 'Google-Mobile-Ads-SDK'
 end

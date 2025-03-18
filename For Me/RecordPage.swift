@@ -147,7 +147,7 @@ struct RecordPage: View {
                             cancelEditing()
                             showSpeechAIPage = true
                         },
-                        isEnabled: isToday,
+                        isEnabled: isToday && chatSummary == nil,
                         isAdReady: true
                     )
                     .padding(.horizontal)

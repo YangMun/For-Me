@@ -12,6 +12,7 @@ struct CustomCalendarView: View {
     let endYear: Int
     @State private var showRecordPage = false  // RecordPage 표시 여부
     @State private var lastSelectedDate: Date? = nil // 마지막으로 선택된 날짜
+    @State private var userRecords: [String: [String: Any]] = [:]  // 날짜별 기록 데이터를 저장할 상태 변수
     
     private let calendar = Calendar.current
     private let dateFormatter: DateFormatter = {
@@ -102,7 +103,7 @@ struct CustomCalendarView: View {
                         LazyVGrid(columns: columns, spacing: spacing) {
                             ForEach(daysInMonth(), id: \.self) { date in
                                 if let date = date {
-                                    DayCell(date: date, selectedDate: $selectedDate, currentMonth: currentMonth)
+                                    DayCell(date: date, selectedDate: $selectedDate, currentMonth: currentMonth, userRecords: userRecords)
                                         .frame(height: cellWidth)
                                         .onTapGesture {
                                             if lastSelectedDate == date {
@@ -212,6 +213,10 @@ struct CustomCalendarView: View {
         // .sheet(isPresented: $showRecordPage) {
         //     RecordPage(selectedDate: selectedDate)
         // }
+        .onAppear {
+            // 앱이 시작될 때 모든 기록 한 번에 로드
+            loadAllRecords()
+        }
     }
     
     private func monthYearString() -> String {
@@ -256,13 +261,26 @@ struct CustomCalendarView: View {
             currentMonth = newDate
         }
     }
+    
+    // 모든 기록 로드 함수 추가
+    private func loadAllRecords() {
+        FirestoreManager.shared.fetchAllRecords { records, error in
+            if let records = records {
+                self.userRecords = records
+            } else if let error = error {
+                print("기록 로드 실패: \(error.localizedDescription)")
+            }
+        }
+    }
 }
 
 struct DayCell: View {
     let date: Date
     @Binding var selectedDate: Date
     let currentMonth: Date
+    let userRecords: [String: [String: Any]]  // 상위 뷰에서 전달받을 프로퍼티 추가
     @State private var showRecordPage = false
+    @State private var hasRecord = false  // 기록 여부 추적을 위한 상태 변수 추가
     
     private let calendar = Calendar.current
     
@@ -282,9 +300,11 @@ struct DayCell: View {
                     .fontWeight(isToday ? .bold : .regular)
                     .frame(maxWidth: .infinity, alignment: .top)
                 Spacer()
-                // ScoreManager 임시 처리
-                // TODO: ScoreManager 구현 예정
-                Text(" ")
+                
+                // 기록 완료 표시
+                Text(hasRecord ? "O" : " ")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(Color(hex: "4CAF50"))  // 녹색으로 표시
                     .frame(height: 20)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -309,21 +329,32 @@ struct DayCell: View {
                         : .black))
                 : .gray
         )
-        .sheet(isPresented: $showRecordPage) {
+        .sheet(isPresented: $showRecordPage, onDismiss: {
+            // 페이지가 닫힐 때 기록 상태 다시 확인
+            checkHasRecord()
+        }) {
             RecordPage(selectedDate: date)
         }
         .onAppear {
-            // ScoreManager 체크 임시 제거
-            // checkScore()
+            // 로컬 데이터로 기록 여부 확인
+            checkHasRecord()
         }
-        // ScoreManager Notification 제거
-        // .onReceive(NotificationCenter.default.publisher(for: ScoreManager.scoreChangedNotification)) { ... }
     }
     
-    private func checkScore() {
-        // TODO: ScoreManager 구현 예정
-        // let score = ScoreManager.shared.loadScore(for: date)
-        // hasScore = score > 0
+    // 로컬 데이터로 기록 여부 확인하는 함수
+    private func checkHasRecord() {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let dateString = dateFormatter.string(from: date)
+        
+        if let record = userRecords[dateString] {
+            let hasScore = record["score"] as? Int != nil && (record["score"] as? Int ?? 0) > 0
+            let hasTasks = record["tasks"] as? [String] != nil && !(record["tasks"] as? [String] ?? []).isEmpty
+            
+            hasRecord = hasScore || hasTasks
+        } else {
+            hasRecord = false
+        }
     }
 }
 

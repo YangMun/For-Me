@@ -254,7 +254,7 @@ struct CustomCalendarView: View {
             if let records = records {
                 self.userRecords = records
             } else if let error = error {
-                print("기록 로드 실패: \(error.localizedDescription)")
+//                print("기록 로드 실패: \(error.localizedDescription)")
             }
         }
     }

@@ -40,7 +40,7 @@ class AdMobManager: NSObject {
         
         // 테스트 기기 설정 (개발 중에 사용)
         #if DEBUG
-        GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = ["A043B73B-8A1E-4D2D-8988-E02FB61C2BB9"]
+        GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = ["ccc9fc71b7fa90e988fdd5a87cf9e2f3"]
         #endif
     }
     
@@ -74,7 +74,7 @@ class AdMobManager: NSObject {
             guard let self = self else { return }
             
             if let error = error {
-                print("전면 광고 로드 실패: \(error.localizedDescription)")
+                // print("전면 광고 로드 실패: \(error.localizedDescription)")
                 return
             }
             
@@ -103,7 +103,7 @@ class AdMobManager: NSObject {
         
         // 이미 뷰를 표시하고 있는지 확인
         guard !topViewController.isBeingPresented && !topViewController.isBeingDismissed else {
-            print("뷰 컨트롤러가 이미 표시 중이거나 해제 중입니다.")
+            // print("뷰 컨트롤러가 이미 표시 중이거나 해제 중입니다.")
             return false
         }
         
@@ -122,7 +122,7 @@ class AdMobManager: NSObject {
             guard let self = self else { return }
             
             if let error = error {
-                print("리워드 광고 로드 실패: \(error.localizedDescription)")
+                // print("리워드 광고 로드 실패: \(error.localizedDescription)")
                 return
             }
             
@@ -151,7 +151,7 @@ class AdMobManager: NSObject {
         
         // 이미 뷰를 표시하고 있는지 확인
         guard !topViewController.isBeingPresented && !topViewController.isBeingDismissed else {
-            print("뷰 컨트롤러가 이미 표시 중이거나 해제 중입니다.")
+            // print("뷰 컨트롤러가 이미 표시 중이거나 해제 중입니다.")
             return false
         }
         
@@ -172,12 +172,12 @@ class AdMobManager: NSObject {
 // MARK: - 배너 광고 델리게이트
 extension AdMobManager: GADBannerViewDelegate {
     func bannerViewDidReceiveAd(_ bannerView: GADBannerView) {
-        print("배너 광고 로드 성공")
+        // print("배너 광고 로드 성공")
         isHomeBannerReady = true
     }
     
     func bannerView(_ bannerView: GADBannerView, didFailToReceiveAdWithError error: Error) {
-        print("배너 광고 로드 실패: \(error.localizedDescription)")
+        // print("배너 광고 로드 실패: \(error.localizedDescription)")
         isHomeBannerReady = false
         
         // 실패시 다시 시도
@@ -202,7 +202,7 @@ extension AdMobManager: GADFullScreenContentDelegate {
     }
     
     func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
-        print("전체화면 광고 표시 실패: \(error.localizedDescription)")
+        // print("전체화면 광고 표시 실패: \(error.localizedDescription)")
         
         // 실패시 다시 로드
         if ad === interstitialAd {
@@ -282,7 +282,7 @@ struct RewardedAdButton: View {
 func initializeAdMob() {
     GADMobileAds.sharedInstance().start { status in
         // AdMob 초기화 완료
-        print("AdMob 초기화 완료: \(status.adapterStatusesByClassName)")
+        // print("AdMob 초기화 완료: \(status.adapterStatusesByClassName)")
         
         // 모든 광고 미리 로드
         AdMobManager.shared.preloadAllAds()

@@ -352,7 +352,7 @@ struct SpeechAIPage: View {
                     // 응답 대기 상태 해제
                     isWaitingForResponse = false
                 }
-                print("GPT API 오류: \(error.localizedDescription)")
+//                print("GPT API 오류: \(error.localizedDescription)")
             }
         }
     }
@@ -393,7 +393,7 @@ struct SpeechAIPage: View {
                         }
                     }
                     
-                    print("요약 생성 오류: \(error.localizedDescription)")
+//                    print("요약 생성 오류: \(error.localizedDescription)")
                 }
             }
         }

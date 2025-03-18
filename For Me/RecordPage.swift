@@ -12,6 +12,8 @@ struct RecordPage: View {
     @State private var taskToDelete: String?    // 삭제할 task
     @State private var showSpeechAIPage = false
     @State private var chatSummary: String? = nil  // 대화 요약 내용을 저장할 변수 추가
+    @State private var showSaveAlert = false  // 저장 성공 알림 추가
+    @State private var saveErrorMessage: String? = nil  // 저장 실패 메시지 저장
     
     private let calendar = Calendar.current
     
@@ -163,8 +165,8 @@ struct RecordPage: View {
                     // 저장하기 버튼 추가 (오늘 날짜일 때만 표시)
                     SaveButton(
                         action: {
-                            // 여기에 나중에 저장 기능 구현
-                            print("저장 버튼이 눌렸습니다")
+                            // FirestoreManager를 사용하여 데이터 저장
+                            saveDataToFirestore()
                         },
                         isEnabled: true,
                         isToday: isToday  // RecordPage의 isToday 계산 프로퍼티 전달
@@ -206,9 +208,30 @@ struct RecordPage: View {
             } message: {
                 Text("정말로 이 할 일을 삭제하시겠습니까?")
             }
+            // 저장 성공 알림 추가
+            .alert("저장 완료", isPresented: $showSaveAlert) {
+                Button("확인") {
+                    // 알림 확인 시 페이지 닫기
+                    dismiss()
+                }
+            } message: {
+                Text("데이터가 성공적으로 저장되었습니다.")
+            }
+            // 저장 실패 알림 추가
+            .alert("저장 실패", isPresented: Binding<Bool>(
+                get: { saveErrorMessage != nil },
+                set: { if !$0 { saveErrorMessage = nil } }
+            )) {
+                Button("확인", role: .cancel) { }
+            } message: {
+                Text(saveErrorMessage ?? "알 수 없는 오류가 발생했습니다.")
+            }
             .onAppear {
                 // 페이지가 나타날 때 해당 날짜의 요약 불러오기
                 loadSummary()
+                
+                // 페이지가 나타날 때 Firestore에서 데이터 불러오기
+                loadDataFromFirestore()
             }
         }
         .environment(\.colorScheme, .light)
@@ -227,6 +250,62 @@ struct RecordPage: View {
             }
         } else {
             chatSummary = newSummary
+        }
+    }
+    
+    // Firestore에 데이터 저장하는 함수 수정
+    private func saveDataToFirestore() {
+        // FirestoreManager 호출하여 데이터 저장
+        FirestoreManager.shared.saveRecord(
+            date: selectedDate,
+            score: selectedScore, 
+            tasks: tasks,
+            summary: chatSummary
+        ) { success, error in
+            // UI 업데이트는 메인 스레드에서 처리
+            DispatchQueue.main.async {
+                if success {
+                    print("데이터가 성공적으로 저장되었습니다!")
+                    // 저장 성공 알림 표시
+                    showSaveAlert = true
+                } else {
+                    print("데이터 저장 실패: \(error?.localizedDescription ?? "알 수 없는 오류")")
+                    // 저장 실패 알림 표시
+                    saveErrorMessage = error?.localizedDescription ?? "알 수 없는 오류가 발생했습니다."
+                }
+            }
+        }
+    }
+    
+    // Firestore에서 데이터 불러오는 함수 추가
+    private func loadDataFromFirestore() {
+        // FirestoreManager 호출하여 데이터 불러오기
+        FirestoreManager.shared.fetchRecord(date: selectedDate) { data, error in
+            if let error = error {
+                print("데이터 불러오기 실패: \(error.localizedDescription)")
+                return
+            }
+            
+            if let data = data {
+                // 점수 설정
+                if let score = data["score"] as? Int {
+                    self.selectedScore = score
+                }
+                
+                // 할 일 목록 설정
+                if let tasks = data["tasks"] as? [String] {
+                    self.tasks = tasks
+                }
+                
+                // 요약 설정 (chatSummary가 nil인 경우에만)
+                if self.chatSummary == nil, let summary = data["summary"] as? String {
+                    self.chatSummary = summary
+                }
+                
+                print("Firestore에서 데이터를 성공적으로 불러왔습니다!")
+            } else {
+                print("해당 날짜의 데이터가 존재하지 않습니다.")
+            }
         }
     }
 }

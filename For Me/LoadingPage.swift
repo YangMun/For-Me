@@ -3,6 +3,9 @@ import SwiftUI
 struct LoadingPage: View {
     @State private var shouldNavigateToHome = false
     @State private var shouldNavigateToNameInput = false
+    @State private var userRecords: [String: [String: Any]] = [:]
+    @State private var isDataLoaded = false
+    @State private var loadingProgress: CGFloat = 0.0  // 로딩 진행도를 저장할 변수
     
     // 명언과 저자를 담은 구조체 정의
     struct Quote {
@@ -71,21 +74,95 @@ struct LoadingPage: View {
                 .padding(.bottom, 40)
                 
                 Spacer()
+                
+                // 로딩 게이지 바 추가
+                VStack(spacing: 8) {
+                    // 프로그레스 바
+                    ZStack(alignment: .leading) {
+                        // 배경
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.white)
+                            .frame(height: 10)
+                            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+                        
+                        // 진행 표시
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color(hex: "7D7056"))
+                            .frame(width: loadingProgress * UIScreen.main.bounds.width * 0.8, height: 10)
+                            .animation(.easeInOut, value: loadingProgress)
+                    }
+                    .frame(width: UIScreen.main.bounds.width * 0.8)
+                    
+                    // 로딩 텍스트
+                    Text("데이터 로딩 중...")
+                        .font(.system(size: 14))
+                        .foregroundColor(Color.gray)
+                }
+                .padding(.bottom, 50)
             }
             .padding(.top, 100)
             
             // 조건부 풀스크린 커버
             if shouldNavigateToHome {
-                HomePage()
+                HomePage(preloadedRecords: userRecords)
                     .transition(.opacity)
             }
         }
         .environment(\.colorScheme, .light)
         .onAppear {
-            // 2초 후 자동으로 홈페이지로 이동
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                withAnimation {
-                    shouldNavigateToHome = true
+            // 데이터 로드 시작 - 로딩 바 시작
+            startLoadingAnimation()
+            
+            // 데이터 로드 후 홈페이지로 이동
+            FirestoreManager.shared.fetchAllRecords { records, error in
+                if let records = records {
+                    self.userRecords = records
+                    self.isDataLoaded = true
+                    // 데이터가 로드되면 로딩 바를 빠르게 완료 상태로 만듦
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        self.loadingProgress = 1.0
+                    }
+                    
+                    // 데이터 로드 완료 후 0.5초 지연 후 홈페이지로 이동
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        withAnimation {
+                            shouldNavigateToHome = true
+                        }
+                    }
+                } else {
+                    // 오류 발생 시에도 2초 후 홈페이지 이동
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        withAnimation {
+                            shouldNavigateToHome = true
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // 로딩 애니메이션 시작 함수
+    private func startLoadingAnimation() {
+        // 처음 시작은 0에서 시작
+        loadingProgress = 0.0
+        
+        // 0에서 0.7까지 서서히 진행 (실제 데이터 로드 완료 전까지)
+        withAnimation(.easeInOut(duration: 1.5)) {
+            loadingProgress = 0.3
+        }
+        
+        // 1.5초 후 다시 진행
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation(.easeInOut(duration: 1.5)) {
+                loadingProgress = 0.7
+            }
+        }
+        
+        // 데이터 로드가 오래 걸릴 경우를 대비해 3초 후 추가 진행
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            if !isDataLoaded {
+                withAnimation(.easeInOut(duration: 1.0)) {
+                    loadingProgress = 0.9
                 }
             }
         }

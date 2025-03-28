@@ -45,7 +45,7 @@ class FirestoreManager {
         // 문서가 존재하는지 확인
         docRef.getDocument { (document, error) in
             if let error = error {
-                print("문서 확인 중 오류 발생: \(error.localizedDescription)")
+                // print("문서 확인 중 오류 발생: \(error.localizedDescription)")
                 completion(false, error)
                 return
             }
@@ -54,10 +54,10 @@ class FirestoreManager {
                 // 기존 문서 업데이트
                 docRef.updateData(recordData) { error in
                     if let error = error {
-                        print("데이터 업데이트 실패: \(error.localizedDescription)")
+                        // print("데이터 업데이트 실패: \(error.localizedDescription)")
                         completion(false, error)
                     } else {
-                        print("데이터 업데이트 성공!")
+                        // print("데이터 업데이트 성공!")
                         completion(true, nil)
                     }
                 }
@@ -67,10 +67,10 @@ class FirestoreManager {
                 
                 docRef.setData(recordData) { error in
                     if let error = error {
-                        print("새 데이터 저장 실패: \(error.localizedDescription)")
+                        // print("새 데이터 저장 실패: \(error.localizedDescription)")
                         completion(false, error)
                     } else {
-                        print("새 데이터 저장 성공!")
+                        // print("새 데이터 저장 성공!")
                         completion(true, nil)
                     }
                 }
@@ -93,13 +93,13 @@ class FirestoreManager {
             .collection(subCollectionName).document(dateString)
             .getDocument { document, error in
                 if let error = error {
-                    print("데이터 불러오기 실패: \(error.localizedDescription)")
+                    // print("데이터 불러오기 실패: \(error.localizedDescription)")
                     completion(nil, error)
                     return
                 }
                 
                 guard let document = document, document.exists, let data = document.data() else {
-                    print("해당 날짜의 데이터가 존재하지 않습니다.")
+                    // print("해당 날짜의 데이터가 존재하지 않습니다.")
                     completion(nil, nil)
                     return
                 }
@@ -118,13 +118,13 @@ class FirestoreManager {
             .collection(subCollectionName)
             .getDocuments { snapshot, error in
                 if let error = error {
-                    print("모든 데이터 불러오기 실패: \(error.localizedDescription)")
+                    // print("모든 데이터 불러오기 실패: \(error.localizedDescription)")
                     completion(nil, error)
                     return
                 }
                 
                 guard let documents = snapshot?.documents, !documents.isEmpty else {
-                    print("저장된 기록이 없습니다.")
+                    // print("저장된 기록이 없습니다.")
                     completion([:], nil)
                     return
                 }
@@ -156,10 +156,10 @@ class FirestoreManager {
             .collection(subCollectionName).document(dateString)
             .delete() { error in
                 if let error = error {
-                    print("데이터 삭제 실패: \(error.localizedDescription)")
+                    // print("데이터 삭제 실패: \(error.localizedDescription)")
                     completion(false, error)
                 } else {
-                    print("데이터 삭제 성공!")
+                    // print("데이터 삭제 성공!")
                     completion(true, nil)
                 }
             }

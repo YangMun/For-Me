@@ -6,6 +6,11 @@ import UIKit
 class AdMobManager: NSObject {
     static let shared = AdMobManager()
     
+    // 광고 모니터링을 위한 변수 추가
+    private var adRequestCount: [String: Int] = ["banner": 0, "interstitial": 0, "rewarded": 0]
+    private var adShowCount: [String: Int] = ["banner": 0, "interstitial": 0, "rewarded": 0]
+    private var lastRequestTime: [String: Date] = [:]
+    
     // Info.plist에서 광고 ID 가져오기
     private(set) var homeBannerID: String
     private(set) var speechAIBannerID: String
@@ -20,6 +25,12 @@ class AdMobManager: NSObject {
     @Published var isHomeBannerReady: Bool = false
     @Published var isInterstitialReady: Bool = false
     @Published var isRewardedAdReady: Bool = false
+    
+    // 광고 초기화 상태 추가
+    private var isInitialized = false
+    
+    // 배너 광고의 첫 노출 여부를 추적하기 위한 변수 추가
+    private var isFirstBannerShow = false
     
     private override init() {
         // Info.plist에서 광고 ID 로드
@@ -36,7 +47,7 @@ class AdMobManager: NSObject {
         super.init()
         
         // 앱 시작 시 미리 광고 로드하기
-        preloadAllAds()
+        initialize()
         
         // 테스트 기기 설정 (개발 중에 사용)
         #if DEBUG
@@ -44,9 +55,59 @@ class AdMobManager: NSObject {
         #endif
     }
     
-    // 모든 광고 사전 로드
-    func preloadAllAds() {
-        loadHomeBanner()
+    // 광고 요청 추적 함수
+    private func trackAdRequest(type: String) {
+        adRequestCount[type, default: 0] += 1
+        lastRequestTime[type] = Date()
+        print("[\(type)] 광고 요청 - 총 요청 수: \(adRequestCount[type, default: 0])")
+        printAdStats(type: type)
+    }
+    
+    // 광고 노출 추적 함수
+    private func trackAdShow(type: String) {
+        // 배너 광고의 경우 첫 노출만 카운트
+        if type == "banner" {
+            if !isFirstBannerShow {
+                adShowCount[type, default: 0] += 1
+                isFirstBannerShow = true
+                
+                if let lastRequest = lastRequestTime[type] {
+                    let timeInterval = Date().timeIntervalSince(lastRequest)
+                    print("[\(type)] 광고 노출 - 총 노출 수: \(adShowCount[type, default: 0])")
+                    print("[\(type)] 요청부터 노출까지 소요 시간: \(String(format: "%.2f", timeInterval))초")
+                }
+                printAdStats(type: type)
+            }
+        } else {
+            // 다른 광고 타입은 기존대로 처리
+            adShowCount[type, default: 0] += 1
+            if let lastRequest = lastRequestTime[type] {
+                let timeInterval = Date().timeIntervalSince(lastRequest)
+                print("[\(type)] 광고 노출 - 총 노출 수: \(adShowCount[type, default: 0])")
+                print("[\(type)] 요청부터 노출까지 소요 시간: \(String(format: "%.2f", timeInterval))초")
+            }
+            printAdStats(type: type)
+        }
+    }
+    
+    // 광고 통계 출력 함수
+    private func printAdStats(type: String) {
+        let requests = adRequestCount[type, default: 0]
+        let shows = adShowCount[type, default: 0]
+        let ratio = requests > 0 ? Double(shows) / Double(requests) * 100 : 0
+        print("[\(type)] 광고 통계:")
+        print("- 총 요청 수: \(requests)")
+        print("- 총 노출 수: \(shows)")
+        print("- 노출률: \(String(format: "%.2f", ratio))%")
+        print("------------------------")
+    }
+    
+    // 초기화 함수 수정
+    func initialize() {
+        guard !isInitialized else { return }
+        isInitialized = true
+        
+        // 전면 광고와 리워드 광고만 미리 로드
         loadInterstitialAd()
         loadRewardedAd()
     }
@@ -57,6 +118,7 @@ class AdMobManager: NSObject {
             return existingBanner
         }
         
+        trackAdRequest(type: "banner")
         let banner = GADBannerView(adSize: GADAdSizeBanner)
         banner.adUnitID = homeBannerID
         banner.rootViewController = UIApplication.shared.windows.first?.rootViewController
@@ -68,6 +130,7 @@ class AdMobManager: NSObject {
     
     // MARK: - 전면 광고 (SpeechAI)
     func loadInterstitialAd(completion: (() -> Void)? = nil) {
+        trackAdRequest(type: "interstitial")
         isInterstitialReady = false
         
         GADInterstitialAd.load(withAdUnitID: speechAIBannerID, request: GADRequest()) { [weak self] ad, error in
@@ -116,6 +179,7 @@ class AdMobManager: NSObject {
     
     // MARK: - 리워드 광고 (PlusMike)
     func loadRewardedAd(completion: (() -> Void)? = nil) {
+        trackAdRequest(type: "rewarded")
         isRewardedAdReady = false
         
         GADRewardedAd.load(withAdUnitID: plusMikeBannerID, request: GADRequest()) { [weak self] ad, error in
@@ -172,16 +236,18 @@ class AdMobManager: NSObject {
 // MARK: - 배너 광고 델리게이트
 extension AdMobManager: GADBannerViewDelegate {
     func bannerViewDidReceiveAd(_ bannerView: GADBannerView) {
-        // print("배너 광고 로드 성공")
+        trackAdShow(type: "banner")
         isHomeBannerReady = true
     }
     
+    // 배너 광고 실패 시 첫 노출 상태 초기화
     func bannerView(_ bannerView: GADBannerView, didFailToReceiveAdWithError error: Error) {
-        // print("배너 광고 로드 실패: \(error.localizedDescription)")
+        print("배너 광고 로드 실패: \(error.localizedDescription)")
         isHomeBannerReady = false
+        isFirstBannerShow = false  // 실패 시 첫 노출 상태 초기화
         
-        // 실패시 다시 시도
-        DispatchQueue.main.asyncAfter(deadline: .now() + 60) { [weak self] in
+        // 실패시 재시도 간격을 3분으로 증가
+        DispatchQueue.main.asyncAfter(deadline: .now() + 180) { [weak self] in
             self?.homeBanner?.load(GADRequest())
         }
     }
@@ -190,25 +256,26 @@ extension AdMobManager: GADBannerViewDelegate {
 // MARK: - 전면/리워드 광고 델리게이트
 extension AdMobManager: GADFullScreenContentDelegate {
     func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
-        // 광고가 닫힌 후 다음 광고 미리 로드
         if ad === interstitialAd {
+            trackAdShow(type: "interstitial")
             loadInterstitialAd()
-            
-            // 전면 광고가 닫힐 때 알림 발송
             NotificationCenter.default.post(name: NSNotification.Name("AdDismissed"), object: nil)
         } else if ad === rewardedAd {
+            trackAdShow(type: "rewarded")
             loadRewardedAd()
         }
     }
     
     func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
-        // print("전체화면 광고 표시 실패: \(error.localizedDescription)")
+        print("전체화면 광고 표시 실패: \(error.localizedDescription)")
         
-        // 실패시 다시 로드
-        if ad === interstitialAd {
-            loadInterstitialAd()
-        } else if ad === rewardedAd {
-            loadRewardedAd()
+        // 실패시 재시도 간격을 3분으로 증가
+        DispatchQueue.main.asyncAfter(deadline: .now() + 180) { [weak self] in
+            if ad === self?.interstitialAd {
+                self?.loadInterstitialAd()
+            } else if ad === self?.rewardedAd {
+                self?.loadRewardedAd()
+            }
         }
     }
 }
@@ -278,13 +345,10 @@ struct RewardedAdButton: View {
     }
 }
 
-// 앱 시작시 초기화를 위한 공용 함수
+// 앱 초기화 함수 수정
 func initializeAdMob() {
     GADMobileAds.sharedInstance().start { status in
-        // AdMob 초기화 완료
-        // print("AdMob 초기화 완료: \(status.adapterStatusesByClassName)")
-        
-        // 모든 광고 미리 로드
-        AdMobManager.shared.preloadAllAds()
+        // AdMob 초기화 완료 후 광고 매니저 초기화
+        AdMobManager.shared.initialize()
     }
 }

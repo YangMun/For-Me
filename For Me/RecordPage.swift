@@ -242,11 +242,6 @@ struct RecordPage: View {
                 // 페이지가 나타날 때 Firestore에서 데이터 불러오기
                 loadDataFromFirestore()
                 
-                // 페이지가 나타날 때 전면 광고 로드 (아직 로드되지 않은 경우)
-                if !AdMobManager.shared.isInterstitialReady {
-                    AdMobManager.shared.loadInterstitialAd()
-                }
-                
                 // 옵저버가 아직 없는 경우에만 추가
                 if observer == nil {
                     observer = NotificationCenter.default.addObserver(

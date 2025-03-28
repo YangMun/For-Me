@@ -13,31 +13,30 @@ struct AIChatButton: View {
         self.isChatCompleted = isChatCompleted
     }
     
-    // 광고 표시 시도 상태 추적
+    // 광고 로딩 상태 추가
+    @State private var isLoadingAd = false
     @State private var isAttemptingToShowAd = false
     
     var body: some View {
         Button(action: {
-            if isEnabled && isAdReady && !isChatCompleted {
-                if !isAttemptingToShowAd && AdMobManager.shared.isInterstitialReady {
-                    // 광고 표시 시도 상태로 변경
+            if isEnabled && !isChatCompleted {
+                // 광고가 없거나 준비되지 않은 경우 바로 action 실행
+                if !AdMobManager.shared.isInterstitialReady {
+                    action()
+                    return
+                }
+                
+                // 광고가 있는 경우 광고 표시 로직 실행
+                if !isAttemptingToShowAd {
                     isAttemptingToShowAd = true
                     
-                    // 약간의 지연 후 광고 표시 시도 (UI 업데이트가 완료되도록)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         let adShown = AdMobManager.shared.showInterstitialAd()
-                        
                         if !adShown {
-                            // 광고 표시 실패 시 바로 액션 실행
                             action()
                         }
-                        
-                        // 시도 상태 초기화
                         isAttemptingToShowAd = false
                     }
-                } else {
-                    // 광고가 준비되지 않았거나 현재 표시 시도 중이면 바로 액션 실행
-                    action()
                 }
             }
         }) {
@@ -47,22 +46,18 @@ struct AIChatButton: View {
                     .scaledToFit()
                     .frame(width: 24, height: 24)
                 
-                Text(isChatCompleted ? "오늘의 대화가 완료되었습니다" : 
-                     (isAdReady ? "AI와 대화하기" : "AI와 대화 준비중..."))
+                Text(isChatCompleted ? "오늘의 대화가 완료되었습니다" : "AI와 대화하기")
                     .font(.system(size: 16))
-                    .foregroundColor(isEnabled && isAdReady && !isChatCompleted ? .black : .gray)
+                    .foregroundColor(isEnabled && !isChatCompleted ? .black : .gray)
                 
                 Spacer()
                 
                 if isChatCompleted {
                     Image(systemName: "checkmark.circle")
                         .foregroundColor(.green)
-                } else if isAdReady {
+                } else {
                     Image(systemName: "chevron.right")
                         .foregroundColor(.gray)
-                } else {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle())
                 }
             }
             .padding()
@@ -70,8 +65,8 @@ struct AIChatButton: View {
             .background(Color.white)
             .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-            .opacity(isEnabled && isAdReady && !isChatCompleted ? 1.0 : 0.5)
+            .opacity(isEnabled && !isChatCompleted ? 1.0 : 0.5)
         }
-        .disabled(!isEnabled || !isAdReady || isChatCompleted)
+        .disabled(!isEnabled || isChatCompleted)
     }
 }

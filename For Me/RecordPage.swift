@@ -242,11 +242,6 @@ struct RecordPage: View {
                 // 페이지가 나타날 때 Firestore에서 데이터 불러오기
                 loadDataFromFirestore()
                 
-                // 페이지가 나타날 때 전면 광고 로드 (아직 로드되지 않은 경우)
-                if !AdMobManager.shared.isInterstitialReady {
-                    AdMobManager.shared.loadInterstitialAd()
-                }
-                
                 // 옵저버가 아직 없는 경우에만 추가
                 if observer == nil {
                     observer = NotificationCenter.default.addObserver(
@@ -298,11 +293,11 @@ struct RecordPage: View {
             // UI 업데이트는 메인 스레드에서 처리
             DispatchQueue.main.async {
                 if success {
-                    print("데이터가 성공적으로 저장되었습니다!")
+                    // print("데이터가 성공적으로 저장되었습니다!")
                     // 저장 성공 알림 표시
                     showSaveAlert = true
                 } else {
-                    print("데이터 저장 실패: \(error?.localizedDescription ?? "알 수 없는 오류")")
+                    // print("데이터 저장 실패: \(error?.localizedDescription ?? "알 수 없는 오류")")
                     // 저장 실패 알림 표시
                     saveErrorMessage = error?.localizedDescription ?? "알 수 없는 오류가 발생했습니다."
                 }
@@ -315,7 +310,7 @@ struct RecordPage: View {
         // FirestoreManager 호출하여 데이터 불러오기
         FirestoreManager.shared.fetchRecord(date: selectedDate) { data, error in
             if let error = error {
-                print("데이터 불러오기 실패: \(error.localizedDescription)")
+                // print("데이터 불러오기 실패: \(error.localizedDescription)")
                 return
             }
             
@@ -335,9 +330,9 @@ struct RecordPage: View {
                     self.chatSummary = summary
                 }
                 
-                print("Firestore에서 데이터를 성공적으로 불러왔습니다!")
+                // print("Firestore에서 데이터를 성공적으로 불러왔습니다!")
             } else {
-                print("해당 날짜의 데이터가 존재하지 않습니다.")
+                // print("해당 날짜의 데이터가 존재하지 않습니다.")
             }
         }
     }
